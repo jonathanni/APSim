@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -95,8 +94,6 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.theme.DesertBluer;
-import com.prodp.apsim.loader.APDownloaderAMD64;
-import com.prodp.apsim.loader.APDownloaderI586;
 import com.sun.j3d.utils.geometry.Box;
 
 /**
@@ -906,8 +903,8 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		for (int i = 0; i < APFinalData.LIMIT; i++) {
 
-			if(process.status[i] == 0) continue;
-			
+			// if(process.status[i] == 0) continue;
+
 			// First things first: get all the blocks around the first block
 			if (!APArrayUtils.getFlagger().get(i))
 				APArrayUtils.computeAroundIndices(process, i);
@@ -1408,6 +1405,12 @@ public class APProcessHandler extends APObject implements ActionListener,
 							+ "<li>Anaglyph Canvas3D</li>"
 							+ "<li>Screenshot Utility: http://www.java.net/node/647363</li>"
 							+ "</ul><br />"
+							+ "<ul>"
+							+ "<li><a href=\"http://apsim.dyndns.org/productiveproductions/licenses/apsimlicense.txt\">APSim License: http://apsim.dyndns.org/productiveproductions/licenses/apsimlicense.txt</a></li>"
+							+ "<li><a href=\"http://apsim.dyndns.org/productiveproductions/licenses/APACHE-LICENSE-2.0.txt\">Apache License 2.0: http://apsim.dyndns.org/productiveproductions/licenses/APACHE-LICENSE-2.0.txt</a></li>"
+							+ "<li><a href=\"http://apsim.dyndns.org/productiveproductions/licenses/LICENSE-Java3D-v1_5_1.txt\">Java 3D License: http://apsim.dyndns.org/productiveproductions/licenses/LICENSE-Java3D-v1_5_1.txt</a></li>"
+							+ "<li><a href=\"http://apsim.dyndns.org/productiveproductions/licenses/JGoodies_LICENSE.txt\">JGoodies License: http://apsim.dyndns.org/productiveproductions/licenses/JGoodies_LICENSE.txt</a></li>"
+							+ "</ul>"
 							+ "<p>&copy;"
 							+ Calendar.getInstance().get(Calendar.YEAR)
 							+ " Productive Productions All Rights Reserved</p><br />"
@@ -1487,8 +1490,11 @@ public class APProcessHandler extends APObject implements ActionListener,
 				io.printStackTrace();
 			}
 		else if (e.getSource() == APFinalData.Update)
-			checkUpdate();
-
+			try {
+				checkUpdate();
+			} catch (IOException e2) {
+				e2.printStackTrace();
+			}
 		else if (e.getSource() == APFinalData.Join_Server)
 			try {
 				client.init();
@@ -1525,17 +1531,16 @@ public class APProcessHandler extends APObject implements ActionListener,
 			amode = AnaglyphMode.REDGREEN_ANAGLYPHS;
 	}
 
-	private void checkUpdate() {
+	private void checkUpdate() throws IOException {
 
-		String hash = null, comphash = null;
+		String ver = null;
 
 		try {
-			hash = new BufferedReader(
+			ver = new BufferedReader(
 					new InputStreamReader(
 							new URL(
-									"http://blockhead.dyndns.org/productiveproductions/apsim/hash.txt")
+									"http://apsim.dyndns.org/productiveproductions/apsim/version.txt")
 									.openStream())).readLine();
-			comphash = APHasher.hash();
 
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -1545,23 +1550,22 @@ public class APProcessHandler extends APObject implements ActionListener,
 			e.printStackTrace();
 			return;
 
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			return;
 		}
 
-		System.out.println(hash + "\n" + comphash);
+		System.out.println("Client version is " + APFinalData.getVersion()
+				+ " while server version is " + ver);
 
-		if (!hash.equals(comphash)) {
-
-			APDownloaderAMD64 bit64 = new APDownloaderAMD64();
-			APDownloaderI586 bit32 = new APDownloaderI586();
-
-			if (System.getProperty("sun.arch.data.model") == "32")
-				bit32.init();
-			else
-				bit64.init();
-
+		if (!APFinalData.getVersion().equals(ver)) {
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						Runtime.getRuntime().exec("java -jar APDownloader.jar");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+			destroy();
 		} else
 			JOptionPane.showMessageDialog(new JFrame(), "No updates!");
 

@@ -654,7 +654,7 @@ public class APFinalData extends APObject {
 	 */
 	
 	// Version number
-	private static final String VERSION = "V0.1.4.1pa";
+	private static final String VERSION = "V0.1.4.2pa";
 
 	/**
 	 * 
