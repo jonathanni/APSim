@@ -38,14 +38,14 @@ public class APSky extends Sphere {
 				| Sphere.GENERATE_TEXTURE_COORDS
 				| Sphere.GENERATE_NORMALS_INWARD, new Appearance());
 
-		setTexture(new TextureLoader(new APRandImage(1000, 1000,
+		setTexture(new TextureLoader(new APRandImage(200, 200,
 				BufferedImage.TYPE_3BYTE_BGR)).getTexture());
 	}
 
 	private void setTexture(Texture tex) {
 
 		Transform3D scale = new Transform3D();
-		scale.setScale(5);
+		scale.setScale(30);
 
 		Appearance app = new Appearance();
 
