@@ -48,6 +48,7 @@ import javax.media.j3d.ImageComponent;
 import javax.media.j3d.ImageComponent2D;
 import javax.media.j3d.Screen3D;
 import javax.swing.JFileChooser;
+import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 /**
@@ -68,6 +69,40 @@ import javax.swing.UnsupportedLookAndFeelException;
  */
 
 public final class APMain extends APObject implements Runnable {
+
+	static {
+
+		// Detect Mac OS X operating system
+		if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0) {
+
+			System.setProperty(
+					"com.apple.mrj.application.apple.menu.about.name",
+					"APSimulator");
+
+			System.setProperty("com.apple.mrj.application.growbox.intrudes",
+					"false");
+
+			System.setProperty("com.apple.macos.useScreenMenuBar", "true");
+			System.setProperty("com.apple.macos.smallTabs", "true");
+
+			System.setProperty("apple.laf.smallTabs", "true");
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+
+			try {
+				UIManager.setLookAndFeel(UIManager
+						.getSystemLookAndFeelClassName());
+
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (UnsupportedLookAndFeelException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * 
@@ -269,13 +304,11 @@ public final class APMain extends APObject implements Runnable {
 			timeElapsed = System.nanoTime() - startNano;
 			fps = APFinalData.NANOS_IN_SECOND / timeElapsed;
 
-			
-			
-				try {
-					APMain.sleepNanos(APFinalData.SLEEPTIME * 1000000000);
-				} catch (final InterruptedException e) {
-					e.printStackTrace();
-				}
+			try {
+				APMain.sleepNanos(APFinalData.SLEEPTIME * 1000000000);
+			} catch (final InterruptedException e) {
+				e.printStackTrace();
+			}
 
 			// do all your debugging here
 

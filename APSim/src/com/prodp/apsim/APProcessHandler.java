@@ -542,17 +542,6 @@ public class APProcessHandler extends APObject implements ActionListener,
 			InstantiationException, IllegalAccessException,
 			UnsupportedLookAndFeelException, CloneNotSupportedException {
 
-		// Detect Mac OS X operating system
-		if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0) {
-			System.setProperty("apple.laf.smallTabs", "true");
-			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			System.setProperty("com.apple.mrj.application.growbox.intrudes",
-					"false");
-			System.setProperty(
-					"com.apple.mrj.application.apple.menu.about.name",
-					"APSimulator");
-		}
-
 		// Get the icon
 		try {
 			APFinalData.apIconImage = new ImageIcon(ImageIO.read(new APMain()
