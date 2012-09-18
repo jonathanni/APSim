@@ -19,7 +19,7 @@ import javax.vecmath.Point3d;
 /**
  * 
  * @author Jonathan
- * @version 0.0
+ * @version 0.1
  * @since 7-7-2012 (Javadoc Created)
  * 
  */
@@ -88,6 +88,8 @@ public class APWorld extends APProcessableItem {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		
+		out.writeInt(APFinalData.FORMAT_VERSION);
 
 		out.writeInt(APProcessHandler.getBrushSize());
 
@@ -115,9 +117,9 @@ public class APWorld extends APProcessableItem {
 
 		for (int i = 0; i < APFinalData.LIMIT; i++) {
 
-			out.writeByte(process.velocity[i].x);
-			out.writeByte(process.velocity[i].y);
-			out.writeByte(process.velocity[i].z);
+			out.writeFloat(process.dVelocity[i].x);
+			out.writeFloat(process.dVelocity[i].y);
+			out.writeFloat(process.dVelocity[i].z);
 
 			bar.setValue((int) (i / APFinalData.LIMIT * 100));
 		}
@@ -168,9 +170,9 @@ public class APWorld extends APProcessableItem {
 
 		for (int i = 0; i < LOCALLIMIT; i++) {
 
-			process.velocity[i].x = in.readByte();
-			process.velocity[i].y = in.readByte();
-			process.velocity[i].z = in.readByte();
+			process.dVelocity[i].x = in.readFloat();
+			process.dVelocity[i].y = in.readFloat();
+			process.dVelocity[i].z = in.readFloat();
 
 			bar.setValue((int) (i / APFinalData.LIMIT * 100));
 		}

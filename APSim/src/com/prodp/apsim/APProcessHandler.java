@@ -890,6 +890,9 @@ public class APProcessHandler extends APObject implements ActionListener,
 		// This is used a lot
 		final APProcess process = APList.getCurrentProcess();
 
+		if (process.isFrozen())
+			return;
+
 		for (int i = 0; i < APFinalData.LIMIT; i++) {
 
 			// if(process.status[i] == 0) continue;
@@ -901,21 +904,21 @@ public class APProcessHandler extends APObject implements ActionListener,
 			// debug(indices.toString());
 
 			// Make all velocities tend to fall toward the ground except buoyant
-			// elements
-			process.velocity[i].y = process.velocity[i].y == 1 ? 0 : (byte) -1;
+			// elements (note: 1 tick = 0.1 s)
+			process.dVelocity[i].y -= .98f;
 
 			// Make buoyant elements float up
 			if (APMaterialsList.isBuoyant(process.status[i]))
-				process.velocity[i].y = 1;
+				process.dVelocity[i].y = 1;
 
 			// Remove the dead fire
-			if (process.velocity[i].y == 1
+			if (process.dVelocity[i].y == 1
 					&& process.status[i] == APMaterial.FIRE.getID()
 					&& APFinalData.random.nextDouble() > 0.9)
 				removeBlock(process, i);
 
 			// Change steam
-			if (process.velocity[i].y == 1
+			if (process.dVelocity[i].y == 1
 					&& process.status[i] == APMaterial.STEAM.getID()
 					&& APFinalData.random.nextDouble() > 0.9)
 				if (APFinalData.random.nextBoolean())
@@ -925,10 +928,6 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 			if (!APArrayUtils.getFlagger().get(i))
 				APArrayUtils.doReqCheckLoopActions(process, i);
-
-			process.velocity[i].x -= Math.signum(process.velocity[i].x);
-			process.velocity[i].y -= Math.signum(process.velocity[i].y);
-			process.velocity[i].z -= Math.signum(process.velocity[i].z);
 
 			// Return the "Underground" blocks back home as null
 			if (process.status[i] == 0) {
@@ -1117,10 +1116,6 @@ public class APProcessHandler extends APObject implements ActionListener,
 				process.coords[index * 24 * 3] = (float) cT.x;
 				process.coords[index * 24 * 3 + 1] = (float) cT.y;
 				process.coords[index * 24 * 3 + 2] = (float) cT.z;
-
-				// Init velocities
-				process.velocity[index].y = process.getMaterial()
-						.getIsBuoyant() ? (byte) 1 : 0;
 
 				// Update coord and color
 				APArrayUtils.setCoordBlocks(process.coords, index * 24 * 3);

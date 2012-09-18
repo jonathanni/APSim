@@ -222,61 +222,31 @@ public class APArrayUtils extends APObject {
 		if ((stickyindex = isAroundLiquid(process, 2, index)) != -1
 				&& process.realcoords[index * 3 + 1] == 0) {
 
-			process.velocity[index].x = (byte) (Math
-					.signum(process.realcoords[stickyindex * 3]
-							- process.realcoords[index * 3]));
-			process.velocity[index].y = (byte) (Math
-					.signum(process.realcoords[stickyindex * 3 + 1]
-							- process.realcoords[index * 3 + 1]));
-			process.velocity[index].z = (byte) (Math
-					.signum(process.realcoords[stickyindex * 3 + 2]
-							- process.realcoords[index * 3 + 2]));
+			process.dVelocity[index].x += process.realcoords[stickyindex * 3]
+					- process.realcoords[index * 3];
+			process.dVelocity[index].y += process.realcoords[stickyindex * 3 + 1]
+					- process.realcoords[index * 3 + 1];
+			process.dVelocity[index].z += process.realcoords[stickyindex * 3 + 2]
+					- process.realcoords[index * 3 + 2];
 
-		} else {
+			// if (process.realcoords[index * 3 + 1] == 0)
+			// return;
 
-			Point3i check = new Point3i(process.realcoords[index * 3]
-					+ process.velocity[index].x,
-					process.realcoords[index * 3 + 1]
-							+ process.velocity[index].y,
-					process.realcoords[index * 3 + 2]
-							+ process.velocity[index].z);
+		}// else {
 
-			for (int b : indices) {
-				if (!process.reversecoordsort.containsKey(check)) {
+		/*
+		 * Check is the block plus its velocity; that is its block velocity,
+		 * which means capped to 0 or 1 in (x,y,z).
+		 */
 
-					if (b != -1) {
-						process.velocity[index].x += process.velocity[b].x;
-						process.velocity[index].y += process.velocity[b].y;
-						process.velocity[index].z += process.velocity[b].z;
-					}
+		Point3i check = new Point3i(process.realcoords[index * 3]
+				+ (int) Math.signum(Math.round(process.dVelocity[index].x)),
+				process.realcoords[index * 3 + 1]
+						+ (int) Math.signum(Math
+								.round(process.dVelocity[index].y)),
+				(int) (process.realcoords[index * 3 + 2] + Math.signum(Math
+						.round(process.dVelocity[index].z))));
 
-				} else {
-
-					process.velocity[index].x = (byte) (APFinalData.random
-							.nextInt(3) - 1);
-					process.velocity[index].y = (byte) (APFinalData.random
-							.nextInt(3) - 1);
-					process.velocity[index].z = (byte) (APFinalData.random
-							.nextInt(3) - 1);
-
-				}
-			}
-
-			if (process.velocity[index].x > 0)
-				process.velocity[index].x = 1;
-			else if (process.velocity[index].x < 0)
-				process.velocity[index].x = -1;
-
-			if (process.velocity[index].y > 0)
-				process.velocity[index].y = 0;
-			// else if(process.velocity[index].y < 0)
-			// process.velocity[index].y = -1;
-
-			if (process.velocity[index].z > 0)
-				process.velocity[index].z = 1;
-			else if (process.velocity[index].z < 0)
-				process.velocity[index].z = -1;
-		}
 	}
 
 	/**
@@ -314,9 +284,9 @@ public class APArrayUtils extends APObject {
 
 		for (int j : indices) {
 			if (j != -1) {
-				APPair search = new APPair(process.status[i], process.status[j]);
 
-				APReaction a = APProcessHandler.APRList.getReaction(search);
+				APReaction a = APProcessHandler.APRList.getReaction(
+						process.status[i], process.status[j]);
 
 				if (a != null
 						&& APFinalData.random.nextFloat() < a
@@ -357,7 +327,8 @@ public class APArrayUtils extends APObject {
 	public static void exchangeDensities(final APProcess process, int index) {
 		int tempind = 0;
 
-		if (process.status[index] != 0 && process.velocity[index].y == -1
+		if (process.status[index] != 0
+				&& Math.signum(process.dVelocity[index].y) == -1
 				&& (tempind = indices[16]) != -1 // 16 is top center
 				&& APMaterialsList
 						.getMaterialDensityByID(process.status[index]) < APMaterialsList
@@ -453,19 +424,34 @@ public class APArrayUtils extends APObject {
 		performReactions(process, i);
 		exchangeDensities(process, i);
 
-		APVelocity addend = new APVelocity(process.velocity[i]);
+		// ^ ^ ^ Very Low Time
 
-		// The velocities are CHECKED in the liquid flow algorithm
+		// System.out.println(process.dVelocity[i]);
 
+		if (process.dVelocity[i].y > 0)
+			System.out.println(process.dVelocity[i]);
+
+		// simple "Friction"
+
+		process.dVelocity[i].x -= Math.abs(process.dVelocity[i].x) < 1 ? process.dVelocity[i].x
+				: Math.signum(process.dVelocity[i].x);
+		process.dVelocity[i].y += 0.5f * 1.225f * 1.05f
+				* Math.pow(process.dVelocity[i].y, 2) / 1000.0f;
+		// a = F/m, Fd=1/2pv^2CdA (Newton's second law, drag equation)
+		process.dVelocity[i].z -= Math.abs(process.dVelocity[i].z) < 1 ? process.dVelocity[i].z
+				: Math.signum(process.dVelocity[i].z);
+
+		// Round 2 setting
+		APVelocity addend = new APVelocity(process.dVelocity[i]);
 		Point3i point = new Point3i(process.realcoords[i * 3] + addend.x,
 				process.realcoords[i * 3 + 1] + addend.y,
 				process.realcoords[i * 3 + 2] + addend.z);
 
-		if (process.isFrozen())
-			addend = new APVelocity();
+		if (point.y < 0)
+			return;
 
 		// Move (checked)
-		if (point.y > -1 && !process.reversecoordsort.containsKey(point)) {
+		if (!process.reversecoordsort.containsKey(point)) {
 
 			process.realcoords[i * 3] += addend.x;
 			process.realcoords[i * 3 + 1] += addend.y;
@@ -474,10 +460,6 @@ public class APArrayUtils extends APObject {
 			process.coords[i * 24 * 3] += addend.x * APFinalData.BOXSIZE;
 			process.coords[i * 24 * 3 + 1] += addend.y * APFinalData.BOXSIZE;
 			process.coords[i * 24 * 3 + 2] += addend.z * APFinalData.BOXSIZE;
-
-			// Point3i coordinate = new Point3i(process.realcoords[i * 3],
-			// process.realcoords[i * 3 + 1],
-			// process.realcoords[i * 3 + 2]);
 
 			process.reversecoordsort.remove(process.coordsort.get(i));
 			Integer rec = process.reversecoordsort.put(point, i);
@@ -488,6 +470,10 @@ public class APArrayUtils extends APObject {
 			if (rec != null && rec != i && !fl.get(rec))
 				// conditional recursive call
 				computeAroundIndices(process, rec);
+		} else {
+			process.dVelocity[i].x = 0;
+			process.dVelocity[i].y = 0;
+			process.dVelocity[i].z = 0;
 		}
 
 	}

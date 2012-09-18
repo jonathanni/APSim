@@ -24,7 +24,7 @@ import javax.swing.filechooser.FileFilter;
  */
 
 public class APFileFilter extends FileFilter {
-	private final String[] names = new String[] { "aps", "apsg" };
+	private final String[] names = new String[] { "aps" };
 
 	@Override
 	public boolean accept(File file) {
@@ -47,9 +47,7 @@ public class APFileFilter extends FileFilter {
 
 	public String getTypeDescription(File f) {
 		if (f.getName().endsWith(".aps"))
-			return "APSim Save Files Format 1.0";
-		else if (f.getName().endsWith(".apsg"))
-			return "APSim Save Files Format 1.1";
+			return "APSim Save Files Format 1.2";
 
 		return null;
 	}
@@ -70,6 +68,6 @@ public class APFileFilter extends FileFilter {
 
 	@Override
 	public String getDescription() {
-		return "APSim Save Files (*.aps, *.apsg)";
+		return "APSim Save Files (*.aps)";
 	}
 }

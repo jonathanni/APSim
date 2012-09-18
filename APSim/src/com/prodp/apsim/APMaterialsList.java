@@ -20,27 +20,35 @@ import java.util.HashMap;
 
 public class APMaterialsList {
 
-	private static HashMap<Integer, APMaterial> matIDLookup = new HashMap<Integer, APMaterial>();
+	private static APMaterial[] matIDLookup;
 	private static HashMap<Integer, Integer> denIDLookup = new HashMap<Integer, Integer>();
 	private static HashMap<Integer, Float> floIDLookup = new HashMap<Integer, Float>();
 	private static HashMap<Integer, Boolean> liqIDLookup = new HashMap<Integer, Boolean>();
 	private static HashMap<Integer, Boolean> buoIDLookup = new HashMap<Integer, Boolean>();
 
 	static {
+		ArrayList<APMaterial> matIDLookupList = new ArrayList<APMaterial>();
+
 		for (APMaterial a : APMaterial.values()) {
-			matIDLookup.put((int) a.getID(), a);
+			matIDLookupList.add(a);
 			denIDLookup.put((int) a.getID(), a.getDensity());
 			floIDLookup.put((int) a.getID(), a.getFlowChance());
 			liqIDLookup.put((int) a.getID(), a.getIsLiquid());
 			buoIDLookup.put((int) a.getID(), a.getIsBuoyant());
 		}
+
+		matIDLookup = new APMaterial[matIDLookupList.size()];
+
+		for (int i = 0; i < matIDLookupList.size(); i++)
+			matIDLookup[i] = matIDLookupList.get(i);
 	}
 
 	/**
 	 * 
 	 * Gets the material density via ID. See {@link APMaterial} for more info.
 	 * 
-	 * @param ID the ID
+	 * @param ID
+	 *            the ID
 	 * @return the density
 	 */
 
@@ -52,12 +60,14 @@ public class APMaterialsList {
 
 		return -1;
 	}
-	
+
 	/**
 	 * 
-	 * Gets the material flow chance via ID. See {@link APMaterial} for more info.
+	 * Gets the material flow chance via ID. See {@link APMaterial} for more
+	 * info.
 	 * 
-	 * @param ID the ID
+	 * @param ID
+	 *            the ID
 	 * @return the chance
 	 */
 
@@ -69,24 +79,26 @@ public class APMaterialsList {
 
 		return -1;
 	}
-	
+
 	/**
 	 * 
 	 * Gets the {@link APMaterial} associated with the ID.
 	 * 
-	 * @param ID the ID
+	 * @param ID
+	 *            the ID
 	 * @return the APMaterial
 	 */
 
 	public static final APMaterial getMaterialByID(short ID) {
-		return matIDLookup.get((int) ID);
+		return matIDLookup[ID];
 	}
-	
+
 	/**
 	 * 
 	 * Gets if the material is a liquid. See {@link APMaterial} for more info.
 	 * 
-	 * @param i the ID
+	 * @param i
+	 *            the ID
 	 * @return the flag
 	 */
 
@@ -98,12 +110,13 @@ public class APMaterialsList {
 
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * Gets if the material is buoyant. See {@link APMaterial} for more info.
 	 * 
-	 * @param i the ID
+	 * @param i
+	 *            the ID
 	 * @return the flag
 	 */
 
@@ -115,7 +128,7 @@ public class APMaterialsList {
 
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * Gets the list of all the material names.

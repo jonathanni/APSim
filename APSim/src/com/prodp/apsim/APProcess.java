@@ -61,7 +61,8 @@ public class APProcess {
 	byte[] colors = new byte[APFinalData.LIMIT * 24 * 4];
 	short[] status = new short[APFinalData.LIMIT];
 
-	APVelocity[] velocity = new APVelocity[APFinalData.LIMIT];
+	// APVelocity[] velocity = new APVelocity[APFinalData.LIMIT];
+	APDecimalVelocity[] dVelocity = new APDecimalVelocity[APFinalData.LIMIT];
 
 	int[] realcoords = new int[APFinalData.LIMIT * 3];
 
@@ -218,7 +219,7 @@ public class APProcess {
 			coordsort.put(j, null);
 			reversecoordsort.put(null, j);
 
-			velocity[j] = new APVelocity();
+			dVelocity[j] = new APDecimalVelocity();
 
 			realcoords[j * 3] = 0;
 			realcoords[j * 3 + 1] = -j - 1;

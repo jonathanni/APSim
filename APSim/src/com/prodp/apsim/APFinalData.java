@@ -62,9 +62,9 @@ public class APFinalData extends APObject {
 	 * Target FPS for viewer.
 	 * 
 	 */
-	
+
 	public static final int TARGET_FPS = 120;
-	
+
 	/**
 	 * Either 16 or 32 bits.
 	 */
@@ -304,8 +304,8 @@ public class APFinalData extends APObject {
 			// TODO join server icon
 			// TODO create server icon
 
-			//animated0 = new JLabel(new ImageIcon(
-			//		APMain.class.getResource("icons/animated0.gif")));
+			// animated0 = new JLabel(new ImageIcon(
+			// APMain.class.getResource("icons/animated0.gif")));
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -652,7 +652,7 @@ public class APFinalData extends APObject {
 	 * @see #getVersion()
 	 * 
 	 */
-	
+
 	// Version number
 	private static final String VERSION = "V0.1.4.2pa";
 
@@ -694,7 +694,7 @@ public class APFinalData extends APObject {
 
 		return list;
 	}
-	
+
 	/**
 	 * 
 	 * FPS meter.
@@ -709,7 +709,7 @@ public class APFinalData extends APObject {
 	 * The box size. (a scale in fact)
 	 * 
 	 */
-	
+
 	// Box size
 	public static final float BOXSIZE = 0.02f;
 
@@ -718,7 +718,7 @@ public class APFinalData extends APObject {
 	 * Conversion from radians to degrees.
 	 * 
 	 */
-	
+
 	// Used for Easy Degree Conversion w/o Transform3DUtils
 	public final static double DEGREE = (180 / Math.PI);
 
@@ -727,7 +727,7 @@ public class APFinalData extends APObject {
 	 * The speed of movement.
 	 * 
 	 */
-	
+
 	// Speed of movement
 	public final static double SPEED = 0.15;
 
@@ -736,7 +736,7 @@ public class APFinalData extends APObject {
 	 * Default dialog options.
 	 * 
 	 */
-	
+
 	// Default options
 	public final static String[] prefoptions = { "Yes", "No", "Cancel" };
 
@@ -745,43 +745,43 @@ public class APFinalData extends APObject {
 	 * Shifts the blocks by this much to make it aligned to the ground.
 	 * 
 	 */
-	
+
 	// Shift array by this amount
 	public static final Point3f SHIFT = new Point3f(-BOXSIZE / 2f,
 			-BOXSIZE / 2f, -BOXSIZE / 2f);
-	
+
 	/**
 	 * 
 	 * Box measurement pointing down.
 	 * 
 	 */
-	
+
 	public static final Point3f BOX = new Point3f(0, -BOXSIZE, 0);
 
 	// BOX finals
-	
+
 	/**
 	 * 
 	 * Box vertex +x.
 	 * 
 	 */
-	
+
 	public static final Point3f BOXX = new Point3f(BOXSIZE, 0, 0);
-	
+
 	/**
 	 * 
 	 * Box vertex +y.
 	 * 
 	 */
-	
+
 	public static final Point3f BOXY = new Point3f(0, APFinalData.BOXSIZE, 0);
-	
+
 	/**
 	 * 
 	 * Box vertex +z.
 	 * 
 	 */
-	
+
 	public static final Point3f BOXZ = new Point3f(0, 0, APFinalData.BOXSIZE);
 
 	/**
@@ -789,25 +789,25 @@ public class APFinalData extends APObject {
 	 * Box vertex +x+y.
 	 * 
 	 */
-	
+
 	public static final Point3f BOXXY = new Point3f(APFinalData.BOXSIZE,
 			APFinalData.BOXSIZE, 0);
-	
+
 	/**
 	 * 
 	 * Box vertex +y+z.
 	 * 
 	 */
-	
+
 	public static final Point3f BOXYZ = new Point3f(0, APFinalData.BOXSIZE,
 			APFinalData.BOXSIZE);
-	
+
 	/**
 	 * 
 	 * Box vertex +x+z.
 	 * 
 	 */
-	
+
 	public static final Point3f BOXXZ = new Point3f(APFinalData.BOXSIZE, 0,
 			APFinalData.BOXSIZE);
 
@@ -816,7 +816,7 @@ public class APFinalData extends APObject {
 	 * Box vertex +x+y+z.
 	 * 
 	 */
-	
+
 	public static final Point3f BOXXYZ = new Point3f(APFinalData.BOXSIZE,
 			APFinalData.BOXSIZE, APFinalData.BOXSIZE);
 
@@ -825,16 +825,16 @@ public class APFinalData extends APObject {
 	 * View options frame.
 	 * 
 	 */
-	
+
 	// Alternate frames
 	public static final JFrame viewop = new JFrame();
-	
+
 	/**
 	 * 
 	 * Element selection frame.
 	 * 
 	 */
-	
+
 	public static final JFrame elementop = new JFrame();
 
 	/**
@@ -842,11 +842,11 @@ public class APFinalData extends APObject {
 	 * String version of {@link #byteSize}.
 	 * 
 	 */
-	
+
 	// BITMODE
 	public static final String BITMODE = System
 			.getProperty("sun.arch.data.model");
-	
+
 	/**
 	 * 
 	 * Sensitivity label.
@@ -855,22 +855,22 @@ public class APFinalData extends APObject {
 
 	// LABELS & PANELS FOR VIEWMODE
 	public static final JLabel sense = new JLabel("Sensitivity: ");
-	
+
 	/**
 	 * 
 	 * Antialiasing option label.
 	 * 
 	 */
-	
+
 	public static final JLabel antia = new JLabel(
 			"Antialiasing Enabled (Only if Supported): ");
-	
+
 	/**
 	 * 
 	 * 3D anaglyph label.
 	 * 
 	 */
-	
+
 	public static final JLabel anaglyph = new JLabel("Anaglyph Type: ");
 
 	/**
@@ -878,47 +878,47 @@ public class APFinalData extends APObject {
 	 * Sensitivity panel.
 	 * 
 	 */
-	
+
 	public static final JPanel senseSection = new JPanel();
-	
+
 	/**
 	 * 
 	 * Antialiasing panel.
 	 * 
 	 */
-	
+
 	public static final JPanel antiaSection = new JPanel();
-	
+
 	/**
 	 * 
 	 * Left anaglyph panel.
 	 * 
 	 */
-	
+
 	public static final JPanel lanaglyphSection = new JPanel();
-	
+
 	/**
 	 * 
 	 * Right anaglyph panel.
 	 * 
 	 */
-	
+
 	public static final JPanel ranaglyphSection = new JPanel();
-	
+
 	/**
 	 * 
 	 * Other anaglyph panel.
 	 * 
 	 */
-	
+
 	public static final JPanel fanaglyphSection = new JPanel();
-	
+
 	/**
 	 * 
 	 * View button panel.
 	 * 
 	 */
-	
+
 	public static final JPanel vbuttonSection = new JPanel();
 
 	/**
@@ -926,23 +926,23 @@ public class APFinalData extends APObject {
 	 * Option for enabling antialiasing.
 	 * 
 	 */
-	
+
 	public static final JRadioButton antiaEnable = new JRadioButton("Enable");
-	
+
 	/**
 	 * 
 	 * Option for disabling antialiasing.
 	 * 
 	 */
-	
+
 	public static final JRadioButton antiaDisable = new JRadioButton("Disable");
-	
+
 	/**
 	 * 
 	 * The button group containing the antialiasing options.
 	 * 
 	 */
-	
+
 	public static final ButtonGroup antiaGroup = new ButtonGroup();
 
 	/**
@@ -950,68 +950,68 @@ public class APFinalData extends APObject {
 	 * No anaglyph option.
 	 * 
 	 */
-	
+
 	public static final JRadioButton anaglyphNone = new JRadioButton("None");
-	
+
 	/**
 	 * 
 	 * Red-Blue anaglyph option.
 	 * 
 	 */
-	
+
 	public static final JRadioButton anaglyphRedBlue = new JRadioButton(
 			"Red-Blue 3D");
-	
+
 	/**
 	 * 
 	 * Red-Green anaglyph option.
 	 * 
 	 */
-	
+
 	public static final JRadioButton anaglyphRedGreen = new JRadioButton(
 			"Red-Green 3D");
-	
+
 	/**
 	 * 
 	 * Grayscale anaglyph option.
 	 * 
 	 */
-	
+
 	public static final JRadioButton anaglyphGray = new JRadioButton("Gray 3D");
-	
+
 	/**
 	 * 
 	 * Full-color anaglyph option.
 	 * 
 	 */
-	
+
 	public static final JRadioButton anaglyphFull = new JRadioButton(
 			"Full Color 3D");
-	
+
 	/**
 	 * 
 	 * Half-color anaglyph option.
 	 * 
 	 */
-	
+
 	public static final JRadioButton anaglyphHalf = new JRadioButton(
 			"Half Color 3D");
-	
+
 	/**
 	 * 
 	 * Optimized anaglyph option.
 	 * 
 	 */
-	
+
 	public static final JRadioButton anaglyphOptim = new JRadioButton(
 			"Optimized 3D");
-	
+
 	/**
 	 * 
 	 * Button group containing the anaglyph options.
 	 * 
 	 */
-	
+
 	public static final ButtonGroup anaglyphGroup = new ButtonGroup();
 
 	/**
@@ -1019,15 +1019,15 @@ public class APFinalData extends APObject {
 	 * OK button.
 	 * 
 	 */
-	
+
 	public static final JButton View_Ok = new JButton("OK");
-	
+
 	/**
 	 * 
 	 * Cancel button.
 	 * 
 	 */
-	
+
 	public static final JButton View_Cancel = new JButton("Cancel");
 
 	/**
@@ -1035,7 +1035,7 @@ public class APFinalData extends APObject {
 	 * Sensitivity slider (0-100).
 	 * 
 	 */
-	
+
 	public static final JSlider senseSlider = new JSlider(JSlider.HORIZONTAL,
 			0, 100, 90);
 
@@ -1044,7 +1044,7 @@ public class APFinalData extends APObject {
 	 * Element picker label.
 	 * 
 	 */
-	
+
 	// LABELS & PANELS FOR ELEMENT PICKING
 	public static final JLabel elementl = new JLabel("Choose an Element: ");
 
@@ -1053,7 +1053,7 @@ public class APFinalData extends APObject {
 	 * Element picker.
 	 * 
 	 */
-	
+
 	public static final JComboBox elementChooser = new JComboBox(
 			APMaterialsList.getMaterialList());
 
@@ -1062,17 +1062,17 @@ public class APFinalData extends APObject {
 	 * Element picker panel.
 	 * 
 	 */
-	
+
 	public static final JPanel elementSection = new JPanel();
-	
+
 	/**
 	 * 
 	 * Element button panel.
 	 * 
 	 */
-	
+
 	public static final JPanel ebuttonSection = new JPanel();
-	
+
 	/**
 	 * 
 	 * OK button.
@@ -1080,13 +1080,13 @@ public class APFinalData extends APObject {
 	 */
 
 	public static final JButton Element_Ok = new JButton("OK");
-	
+
 	/**
 	 * 
 	 * Cancel button.
 	 * 
 	 */
-	
+
 	public static final JButton Element_Cancel = new JButton("Cancel");
 
 	/**
@@ -1094,7 +1094,7 @@ public class APFinalData extends APObject {
 	 * Tabs for each process.
 	 * 
 	 */
-	
+
 	// TABS
 	public static final JTabbedPane processSwitch = new JTabbedPane();
 
@@ -1103,25 +1103,25 @@ public class APFinalData extends APObject {
 	 * Sleeping precision.
 	 * 
 	 */
-	
+
 	// SLEEPTIME AND PRECISION
 	public static final long SLEEP_PRECISION = TimeUnit.MILLISECONDS
 			.toNanos(10);
-	
+
 	/**
 	 * 
 	 * Sleeping time.
 	 * 
 	 */
-	
+
 	public static final int SLEEPTIME = 30;
-	
+
 	/**
 	 * 
 	 * Nanoseconds in a second.
 	 * 
 	 */
-	
+
 	public static final int NANOS_IN_SECOND = 1000000000;
 
 	/**
@@ -1129,46 +1129,46 @@ public class APFinalData extends APObject {
 	 * Change block flag for networking.
 	 * 
 	 */
-	
+
 	// FLAGS START AT 0x10000000
 	public static final int CHANGE_BLOCK_FLAG = 0x10000000;
-	
+
 	/**
 	 * 
 	 * Remove block flag for networking.
 	 * 
 	 */
-	
+
 	public static final int REMOVE_BLOCK_FLAG = 0x10000001;
-	
+
 	/**
 	 * 
 	 * Exchange block flag for networking.
 	 * 
 	 */
-	
+
 	public static final int MOVE_BLOCK_FLAG = 0x10000002;
 
 	// TOOL CODES START AT 0x01000000
-	
+
 	/**
 	 * 
 	 * Put block flag for networking.
 	 * 
 	 */
-	
+
 	public static final int SPRAY_FLAG = 0x01000000;
-	
+
 	/**
 	 * 
 	 * Vacuum block flag for networking.
 	 * 
 	 */
-	
+
 	public static final int VACUUM_FLAG = 0x01000001;
 
 	// DATA CODES START AT 0x00
-	
+
 	/**
 	 * 
 	 * Keep the connection alive.
@@ -1176,69 +1176,69 @@ public class APFinalData extends APObject {
 	 */
 
 	public static final byte KEEP_ALIVE = 0x00;
-	
+
 	/**
 	 * 
 	 * Send the name of the user.
 	 * 
 	 */
-	
+
 	public static final byte NAME = 0x01;
-	
+
 	/**
 	 * 
 	 * End sending the name.
 	 * 
 	 */
-	
+
 	public static final byte END_NAME = 0x02;
-	
+
 	/**
 	 * 
 	 * A user enters.
 	 * 
 	 */
-	
+
 	public static final byte ENTER = 0x03;
-	
+
 	/**
 	 * 
 	 * A user leaves.
 	 * 
 	 */
-	
+
 	public static final byte EXIT = 0x04;
-	
+
 	/**
 	 * 
 	 * A client requests an update of the player position.
 	 * 
 	 */
-	
+
 	public static final byte UPDATE_POSITION = 0x05;
-	
+
 	/**
 	 * 
 	 * A request for block updates.
 	 * 
 	 */
-	
+
 	public static final byte REQ_BLOCK_UPDATE = 0x06;
-	
+
 	/**
 	 * 
 	 * A request for client updates.
 	 * 
 	 */
-	
+
 	public static final byte REQ_CLIENT_UPDATE = 0x07;
-	
+
 	/**
 	 * 
 	 * A request for client loading all the data.
 	 * 
 	 */
-	
+
 	public static final byte REQ_CLIENT_LOAD = 0x08;
 
 	/**
@@ -1246,10 +1246,18 @@ public class APFinalData extends APObject {
 	 * Slack for float operations.
 	 * 
 	 */
-	
+
 	// PRECISION ADJUSTMENT
 	public static final float EPSILON = BOXSIZE / 4;
-	
+
+	/**
+	 * 
+	 * The version of the file format. New in 0.1.4.3pa.
+	 * 
+	 */
+
+	public static final int FORMAT_VERSION = 1;
+
 	/**
 	 * 
 	 * Graphics device for the canvas.

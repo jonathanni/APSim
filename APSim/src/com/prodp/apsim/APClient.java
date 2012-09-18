@@ -67,7 +67,7 @@ public class APClient implements APConnectionUsable {
 			process.coords = (float[]) in.readObject();
 			process.colors = (byte[]) in.readObject();
 			process.status = (short[]) in.readObject();
-			process.velocity = (APVelocity[]) in.readObject();
+			process.dVelocity = (APDecimalVelocity[]) in.readObject();
 		}
 
 		out.writeByte(APFinalData.ENTER);
