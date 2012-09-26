@@ -28,7 +28,7 @@ import javax.vecmath.Point3i;
 
 public class APArrayUtils extends APObject {
 
-	private static int[] indices = new int[26];
+	private static int[] indices = new int[27];
 	private static final Flagger fl = new Flagger(APFinalData.LIMIT);
 
 	/**
@@ -239,14 +239,20 @@ public class APArrayUtils extends APObject {
 		 * which means capped to 0 or 1 in (x,y,z).
 		 */
 
-		Point3i check = new Point3i(process.realcoords[index * 3]
-				+ (int) Math.signum(Math.round(process.dVelocity[index].x)),
-				process.realcoords[index * 3 + 1]
-						+ (int) Math.signum(Math
-								.round(process.dVelocity[index].y)),
-				(int) (process.realcoords[index * 3 + 2] + Math.signum(Math
-						.round(process.dVelocity[index].z))));
+		Point3i check = new Point3i((int) Math.signum(Math
+				.round(process.dVelocity[index].x)), (int) Math.signum(Math
+				.round(process.dVelocity[index].y)), (int) Math.signum(Math
+				.round(process.dVelocity[index].z)));
 
+		for (int i = (check.x == 0 ? -1 : check.x); i < (check.x == 0 ? 2
+				: check.x + 1); i++)
+			for (int j = (check.y == 0 ? -1 : check.y); j < (check.y == 0 ? 2
+					: check.y + 1); j++)
+				for (int k = (check.z == 0 ? -1 : check.z); k < (check.z == 0 ? 2
+						: check.z + 1); k++) {
+					int index_checked = (i + 1) * 9 + (k + 1) * 3 + (k + 1);
+					//process.dVelocity[index_checked].x = ;
+				}
 	}
 
 	/**
@@ -353,7 +359,6 @@ public class APArrayUtils extends APObject {
 
 	public static void computeAroundIndices(APProcess process, int index) {
 
-		int j = 0;
 		// Arrays.fill(indices, -1); // costly
 
 		Point3i coordinate = new Point3i(process.realcoords[index * 3],
@@ -371,21 +376,20 @@ public class APArrayUtils extends APObject {
 
 		for (int i = -1; i <= 1; i++)
 			for (int k = -1; k <= 1; k++)
-				for (int l = -1; l <= 1; l++)
-					if (!(i == 0 && k == 0 && l == 0)) {
-						Point3i loccoord = new Point3i(coordinate.x + i,
-								coordinate.y + k, coordinate.z + l);
-						Integer putindex;
+				for (int l = -1; l <= 1; l++) {
+					Point3i loccoord = new Point3i(coordinate.x + i,
+							coordinate.y + k, coordinate.z + l);
+					Integer putindex;
 
-						putindex = process.reversecoordsort.get(loccoord);
+					putindex = process.reversecoordsort.get(loccoord);
 
-						if (putindex != null)
-							indices[j] = putindex;
-						else
-							indices[j] = -1;
+					if (putindex != null)
+						indices[(i + 1) * 9 + (k + 1) * 3 + (l + 1)] = putindex;
+					else
+						indices[(i + 1) * 9 + (k + 1) * 3 + (l + 1)] = -1;
+				}
 
-						j++;
-					}
+		indices[13] = -1; // center block is own block
 	}
 
 	/**
