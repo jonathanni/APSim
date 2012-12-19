@@ -1268,4 +1268,12 @@ public class APFinalData extends APObject {
 	public static GraphicsDevice gd = mainFrame.getGraphicsConfiguration()
 			.getDevice();
 
+	/**
+	 * Slide Coefficient for fluid flow.
+	 * 
+	 * See {@link com.prodp.apsim.APArrayUtils}.
+	 */
+
+	public static final double SLIDE_COEFF = 0.5;
+
 }

@@ -217,22 +217,22 @@ public class APArrayUtils extends APObject {
 
 	private static final void performLiquidFlow(final APProcess process,
 			final int index) {
-		int stickyindex = -1;
+		// int stickyindex = -1;
 
-		if ((stickyindex = isAroundLiquid(process, 2, index)) != -1
-				&& process.realcoords[index * 3 + 1] == 0) {
+		// if ((stickyindex = isAroundLiquid(process, 2, index)) != -1
+		// && process.realcoords[index * 3 + 1] == 0) {
 
-			process.dVelocity[index].x += process.realcoords[stickyindex * 3]
-					- process.realcoords[index * 3];
-			process.dVelocity[index].y += process.realcoords[stickyindex * 3 + 1]
-					- process.realcoords[index * 3 + 1];
-			process.dVelocity[index].z += process.realcoords[stickyindex * 3 + 2]
-					- process.realcoords[index * 3 + 2];
+		// process.dVelocity[index].x += process.realcoords[stickyindex * 3]
+		// - process.realcoords[index * 3];
+		// process.dVelocity[index].y += process.realcoords[stickyindex * 3 + 1]
+		// - process.realcoords[index * 3 + 1];
+		// process.dVelocity[index].z += process.realcoords[stickyindex * 3 + 2]
+		// - process.realcoords[index * 3 + 2];
 
-			// if (process.realcoords[index * 3 + 1] == 0)
-			// return;
+		// if (process.realcoords[index * 3 + 1] == 0)
+		// return;
 
-		}// else {
+		// }// else {
 
 		/*
 		 * Check is the block plus its velocity; that is its block velocity,
@@ -244,6 +244,9 @@ public class APArrayUtils extends APObject {
 				.round(process.dVelocity[index].y)), (int) Math.signum(Math
 				.round(process.dVelocity[index].z)));
 
+		if (!check.equals(new Point3i(0, -1, 0)))
+			APMain.debug(check);
+
 		for (int i = (check.x == 0 ? -1 : check.x); i < (check.x == 0 ? 2
 				: check.x + 1); i++)
 			for (int j = (check.y == 0 ? -1 : check.y); j < (check.y == 0 ? 2
@@ -251,7 +254,44 @@ public class APArrayUtils extends APObject {
 				for (int k = (check.z == 0 ? -1 : check.z); k < (check.z == 0 ? 2
 						: check.z + 1); k++) {
 					int index_checked = (i + 1) * 9 + (k + 1) * 3 + (k + 1);
-					//process.dVelocity[index_checked].x = ;
+					double r = Math.random() / 2;
+
+					process.dVelocity[index_checked].x = (float) ((0.5 + r)
+							* (Math.abs(process.dVelocity[index_checked].x)
+									* process.dVelocity[index].x + APFinalData.SLIDE_COEFF
+									* Math.signum(process.dVelocity[index_checked].x)
+									* (1 - Math
+											.abs(Math
+													.signum(process.dVelocity[index].x))))
+							* (Math.abs(process.dVelocity[index].y) + Math
+									.abs(process.dVelocity[index].z))
+							+ Math.random() * 2 - 1);
+
+					process.dVelocity[index_checked].y = (float) ((0.5 + r)
+							* (Math.abs(process.dVelocity[index_checked].y)
+									* process.dVelocity[index].y + APFinalData.SLIDE_COEFF
+									* Math.signum(process.dVelocity[index_checked].y)
+									* (1 - Math
+											.abs(Math
+													.signum(process.dVelocity[index].y))))
+							* (Math.abs(process.dVelocity[index].x) + Math
+									.abs(process.dVelocity[index].z))
+							+ Math.random() * 2 - 1);
+
+					process.dVelocity[index_checked].z = (float) ((0.5 + r)
+							* (Math.abs(process.dVelocity[index_checked].z)
+									* process.dVelocity[index].z + APFinalData.SLIDE_COEFF
+									* Math.signum(process.dVelocity[index_checked].z)
+									* (1 - Math
+											.abs(Math
+													.signum(process.dVelocity[index].z))))
+							* (Math.abs(process.dVelocity[index].x) + Math
+									.abs(process.dVelocity[index].y))
+							+ Math.random() * 2 - 1);
+
+					process.dVelocity[index].x = (float) ((0.5 - r) * process.dVelocity[index].x);
+					process.dVelocity[index].y = (float) ((0.5 - r) * process.dVelocity[index].y);
+					process.dVelocity[index].z = (float) ((0.5 - r) * process.dVelocity[index].z);
 				}
 	}
 
@@ -431,9 +471,6 @@ public class APArrayUtils extends APObject {
 		// ^ ^ ^ Very Low Time
 
 		// System.out.println(process.dVelocity[i]);
-
-		if (process.dVelocity[i].y > 0)
-			System.out.println(process.dVelocity[i]);
 
 		// simple "Friction"
 
