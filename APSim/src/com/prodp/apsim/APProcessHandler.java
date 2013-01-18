@@ -904,12 +904,16 @@ public class APProcessHandler extends APObject implements ActionListener,
 			// debug(indices.toString());
 
 			// Make all velocities tend to fall toward the ground except buoyant
-			// elements (note: 1 tick = 0.1 s)
+			// elements (note: 1 tick = 0.1 s) and elements on the ground
 			process.dVelocity[i].y -= .98f;
 
 			// Make buoyant elements float up
 			if (APMaterialsList.isBuoyant(process.status[i]))
 				process.dVelocity[i].y = 1;
+			
+			// Grounded
+			if(process.realcoords[i * 3 + 1] == 0)
+				process.dVelocity[i].y = 0;
 
 			// Remove the dead fire
 			if (process.dVelocity[i].y == 1
@@ -1375,6 +1379,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 							+ APFinalData.getVersion()
 							+ "<br />"
 							+ "Credits<br /><br />"
+							+ "Founder: Jonathan Ni<br />"
 							+ "Lead Programmer: Jonathan Ni<br />"
 							+ "Programmer: Sachin Pandey<br />"
 							+ "Physics Expert: Sachin Pandey<br />"

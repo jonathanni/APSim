@@ -105,10 +105,10 @@ public class APMaterialsList {
 	public static final boolean isLiquid(final short i) {
 		Boolean is = liqIDLookup.get((int) i);
 
-		if (!is.equals(null))
-			return is;
+		if (is == null)
+			return false;
 
-		return false;
+		return is;
 	}
 
 	/**
@@ -123,10 +123,10 @@ public class APMaterialsList {
 	public static final boolean isBuoyant(final short i) {
 		Boolean is = buoIDLookup.get((int) i);
 
-		if (!is.equals(null))
-			return is;
+		if (is == null)
+			return false;
 
-		return false;
+		return is;
 	}
 
 	/**
