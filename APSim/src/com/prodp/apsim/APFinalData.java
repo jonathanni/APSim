@@ -654,7 +654,7 @@ public class APFinalData extends APObject {
 	 */
 
 	// Version number
-	private static final String VERSION = "V0.1.4.2pa";
+	private static final String VERSION = "V0.2.0.0pa";
 
 	/**
 	 * 
@@ -1276,4 +1276,10 @@ public class APFinalData extends APObject {
 
 	public static final double SLIDE_COEFF = 0.5;
 
+	/**
+	 * Default material.
+	 */
+	
+	public static final APMaterial DEFAULT_MAT = APMaterial.WATER;
+	
 }

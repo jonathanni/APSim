@@ -162,7 +162,9 @@ public class APProcessHandler extends APObject implements ActionListener,
 	private static int sensitivity = 90;
 
 	// Temporary Variables
-	private short tempelement;
+	// This temporary element is the default element. Should be water in the
+	// choose dialog.
+	private short tempelement = (short) (APFinalData.DEFAULT_MAT.getID() - 1);
 	private boolean antiaOn;
 	private AnaglyphMode amode = null;
 
@@ -904,27 +906,33 @@ public class APProcessHandler extends APObject implements ActionListener,
 			// debug(indices.toString());
 
 			// Make all velocities tend to fall toward the ground except buoyant
-			// elements (note: 1 tick = 0.1 s) and elements on the ground
-			process.dVelocity[i].y -= .98f;
+			// elements, which actually float upwards
+			if (process.realcoords[i * 3 + 1] != 0)
+				process.dVelocity[i].y -= 9.8f;
 
 			// Make buoyant elements float up
 			if (APMaterialsList.isBuoyant(process.status[i]))
-				process.dVelocity[i].y = 1;
-			
-			// Grounded
-			if(process.realcoords[i * 3 + 1] == 0)
-				process.dVelocity[i].y = 0;
+				process.dVelocity[i].y += 15.8f;
+			// Grounded Blocks
+			else if (process.realcoords[i * 3 + 1] == 0
+					&& process.dVelocity[i].y < 0)
+				if (process.status[i] == APMaterial.BALL.getID()
+						&& Math.abs(process.dVelocity[i].y) > 14f)
+					process.dVelocity[i].y *= -0.5f;
+				else
+					process.dVelocity[i].y = 0;
 
 			// Remove the dead fire
-			if (process.dVelocity[i].y == 1
+			if (Math.signum(process.dVelocity[i].y) == 1
 					&& process.status[i] == APMaterial.FIRE.getID()
 					&& APFinalData.random.nextDouble() > 0.9)
 				removeBlock(process, i);
 
 			// Change steam
-			if (process.dVelocity[i].y == 1
+			if (Math.signum(process.dVelocity[i].y) == 1
 					&& process.status[i] == APMaterial.STEAM.getID()
-					&& APFinalData.random.nextDouble() > 0.9)
+					&& APFinalData.random.nextDouble() > 0.8
+					&& APFinalData.random.nextBoolean())
 				if (APFinalData.random.nextBoolean())
 					removeBlock(process, i);
 				else

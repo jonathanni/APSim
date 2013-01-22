@@ -54,7 +54,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 /**
  * 
  * @author Jonathan
- * @version 0.0
+ * @version 0.1
  * @since 7-2-2012 (Javadoc Created)
  * 
  */
@@ -168,6 +168,128 @@ public final class APMain extends APObject implements Runnable {
 
 	public static long dCounter = 0;
 
+	private void doMovement() {
+		if (APProcessHandler.keys[0])
+			APProcessHandler.moveRelativeLeft(APFinalData.SPEED);
+		if (APProcessHandler.keys[1])
+			APProcessHandler.moveRelativeRight(APFinalData.SPEED);
+		if (APProcessHandler.keys[2])
+			APProcessHandler.moveRelativeFwd(APFinalData.SPEED);
+		if (APProcessHandler.keys[3])
+			APProcessHandler.moveRelativeBack(APFinalData.SPEED);
+		if (APProcessHandler.keys[5])
+			APProcessHandler.moveRelativeUp(APFinalData.SPEED);
+		if (APProcessHandler.keys[6])
+			APProcessHandler.moveRelativeDown(APFinalData.SPEED);
+	}
+
+	private void checkScreenshot() {
+		if (APProcessHandler.keys[7] && !APProcessHandler.prevaction[1]) {
+			if (!new File("_screenshots").exists())
+				new File("_screenshots").mkdir();
+			try {
+				ImageIO.write(
+						takeScreenshot(APProcessHandler.getCanvas(), 2),
+						"png",
+						new File("_screenshots/"
+								+ (System.currentTimeMillis() / 1000L) + ".png"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			APProcessHandler.prevaction[1] = true;
+		}
+	}
+
+	private void doBrushChange() {
+		if (APProcessHandler.keys[9] && !APProcessHandler.prevaction[3]) {
+			APProcessHandler.incBrushSize();
+			APProcessHandler.prevaction[3] = true;
+		} else if (APProcessHandler.keys[10] && !APProcessHandler.prevaction[4]) {
+			APProcessHandler.decBrushSize();
+			APProcessHandler.prevaction[4] = true;
+		}
+	}
+
+	private void doExport() {
+		if (APProcessHandler.keys[8] && !APProcessHandler.prevaction[2]) {
+			try {
+				APProcessHandler.exportModel();
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
+			APProcessHandler.prevaction[2] = true;
+		}
+	}
+
+	private void doExportSequence(APProcess process) {
+		if (APProcessHandler.keys[12] && !APProcessHandler.prevaction[6]) {
+			if (!process.isRecording)
+				APProcessHandler.startRecording();
+			else
+				APProcessHandler.stopRecording();
+
+			APProcessHandler.prevaction[6] = true;
+		}
+	}
+
+	private void doFreeze() {
+		if (APProcessHandler.keys[11] && !APProcessHandler.prevaction[5]) {
+			APProcessHandler.toggleFrozen();
+			APProcessHandler.prevaction[5] = true;
+		}
+	}
+
+	private void doBoxHide() {
+		if (APProcessHandler.keys[13] && !APProcessHandler.prevaction[7]) {
+			APProcessHandler.toggleBoxHide();
+			APProcessHandler.prevaction[7] = true;
+		}
+	}
+
+	private void doEscape(APProcess process) {
+		if (APProcessHandler.keys[4] && !APProcessHandler.prevaction[0]) {
+			process.isPaused = !APProcessHandler.APList.getCurrentProcess().isPaused;
+			APProcessHandler.prevaction[0] = true;
+		}
+	}
+
+	/**
+	 * 
+	 * Detect keypresses and respond to them.
+	 * 
+	 * @param process
+	 */
+
+	public void doKeyPresses(APProcess process) {
+		// MOVE
+		if (!process.busy)
+			doMovement();
+
+		// BRUSH SIZE
+		doBrushChange();
+
+		// CHECK TAKE SCREENSHOT
+		checkScreenshot();
+
+		// EXPORT TO .OBJ, .MTL
+		doExport();
+
+		// EXPORT .OBJ SEQUENCE
+		doExportSequence(process);
+
+		// FREEZE MODE
+		doFreeze();
+
+		// BOX HIDE
+		doBoxHide();
+
+		// ESC
+		doEscape(process);
+	}
+
 	@Override
 	public void run() {
 
@@ -210,90 +332,9 @@ public final class APMain extends APObject implements Runnable {
 
 			process.isRobot = false;
 
-			// MOVE
-			if (!process.busy) {
-				if (APProcessHandler.keys[0])
-					APProcessHandler.moveRelativeLeft(APFinalData.SPEED);
-				if (APProcessHandler.keys[1])
-					APProcessHandler.moveRelativeRight(APFinalData.SPEED);
-				if (APProcessHandler.keys[2])
-					APProcessHandler.moveRelativeFwd(APFinalData.SPEED);
-				if (APProcessHandler.keys[3])
-					APProcessHandler.moveRelativeBack(APFinalData.SPEED);
-				if (APProcessHandler.keys[5])
-					APProcessHandler.moveRelativeUp(APFinalData.SPEED);
-				if (APProcessHandler.keys[6])
-					APProcessHandler.moveRelativeDown(APFinalData.SPEED);
-			}
+			// Detect keys
+			doKeyPresses(process);
 
-			// BRUSH SIZE
-			if (APProcessHandler.keys[9] && !APProcessHandler.prevaction[3]) {
-				APProcessHandler.incBrushSize();
-				APProcessHandler.prevaction[3] = true;
-			} else if (APProcessHandler.keys[10]
-					&& !APProcessHandler.prevaction[4]) {
-				APProcessHandler.decBrushSize();
-				APProcessHandler.prevaction[4] = true;
-			}
-
-			// CHECK TAKE SCREENSHOT
-			if (APProcessHandler.keys[7] && !APProcessHandler.prevaction[1]) {
-				if (!new File("_screenshots").exists())
-					new File("_screenshots").mkdir();
-				try {
-					ImageIO.write(
-							takeScreenshot(APProcessHandler.getCanvas(), 2),
-							"png",
-							new File("_screenshots/"
-									+ (System.currentTimeMillis() / 1000L)
-									+ ".png"));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				APProcessHandler.prevaction[1] = true;
-			}
-
-			// EXPORT TO .OBJ, .MTL
-			if (APProcessHandler.keys[8] && !APProcessHandler.prevaction[2]) {
-				try {
-					APProcessHandler.exportModel();
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-
-				APProcessHandler.prevaction[2] = true;
-			}
-
-			// EXPORT .OBJ SEQUENCE
-
-			if (APProcessHandler.keys[12] && !APProcessHandler.prevaction[6]) {
-				if (!process.isRecording)
-					APProcessHandler.startRecording();
-				else
-					APProcessHandler.stopRecording();
-
-				APProcessHandler.prevaction[6] = true;
-			}
-
-			// FREEZE MODE
-			if (APProcessHandler.keys[11] && !APProcessHandler.prevaction[5]) {
-				APProcessHandler.toggleFrozen();
-				APProcessHandler.prevaction[5] = true;
-			}
-
-			// BOX HIDE
-			if (APProcessHandler.keys[13] && !APProcessHandler.prevaction[7]) {
-				APProcessHandler.toggleBoxHide();
-				APProcessHandler.prevaction[7] = true;
-			}
-
-			// ESC
-			if (APProcessHandler.keys[4] && !APProcessHandler.prevaction[0]) {
-				process.isPaused = !APProcessHandler.APList.getCurrentProcess().isPaused;
-				APProcessHandler.prevaction[0] = true;
-			}
 			// IMPORTANT: This is Sensor
 			if (APProcessHandler.isLeftMouseDown)
 				APProcessHandler.countUp();

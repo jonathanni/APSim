@@ -15,10 +15,12 @@ package com.prodp.apsim;
  * 
  * Buoyancy is defined as being a gas.
  * 
+ * The color must be different for every face.
+ * 
  * Constructor format:
  * 
- * MATERIAL(byte[24] color, boolean isBuoyant, boolean isLiquid, boolean unused,
- * float flowChance, short ID, int density, String name);
+ * MATERIAL(byte[24] color, boolean isBuoyant, boolean isLiquid, float
+ * flowChance, short ID, int density, String name);
  * 
  * NOTE: 1-Gas 2-Liquid 3-Normal Solid 4-Dense Solid/Liquid
  * 
@@ -34,7 +36,7 @@ public enum APMaterial {
 			(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
 			(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
 			(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
-			(byte) 0 }, false, false, false, 0, (short) 0, 0, 0, "Nothing"),
+			(byte) 0 }, false, false, 0, (short) 0, 0, "Nothing"),
 
 	/**
 	 * Fire.
@@ -44,7 +46,7 @@ public enum APMaterial {
 			(byte) 0, (byte) 0, (byte) 255, (byte) 127, (byte) 0, (byte) 0,
 			(byte) 255, (byte) 187, (byte) 0, (byte) 0, (byte) 255, (byte) 63,
 			(byte) 0, (byte) 0, (byte) 255, (byte) 255, (byte) 0, (byte) 0,
-			(byte) 255 }, true, false, true, 0.1f, (short) 1, 1, 0, "Fire"),
+			(byte) 255 }, true, false, 0.1f, (short) 1, 1, "Fire"),
 
 	/**
 	 * Water.
@@ -54,7 +56,7 @@ public enum APMaterial {
 			(byte) 0, (byte) 127, (byte) 200, (byte) 0, (byte) 0, (byte) 127,
 			(byte) 200, (byte) 0, (byte) 0, (byte) 187, (byte) 200, (byte) 0,
 			(byte) 0, (byte) 63, (byte) 200, (byte) 0, (byte) 0, (byte) 255,
-			(byte) 200 }, false, true, false, 0.4f, (short) 2, 2, 0.1f, "Water"),
+			(byte) 200 }, false, true, 0.95f, (short) 2, 2, "Water"),
 
 	/**
 	 * Lava.
@@ -64,8 +66,8 @@ public enum APMaterial {
 			(byte) 255, (byte) 55, (byte) 0, (byte) 255, (byte) 255, (byte) 55,
 			(byte) 0, (byte) 255, (byte) 255, (byte) 115, (byte) 60,
 			(byte) 255, (byte) 195, (byte) 0, (byte) 0, (byte) 255, (byte) 255,
-			(byte) 175, (byte) 120, (byte) 255 }, false, true, false, 0.05f,
-			(short) 3, 4, 0f, "Lava"),
+			(byte) 175, (byte) 120, (byte) 255 }, false, true, 0.5f, (short) 3,
+			4, "Lava"),
 
 	/**
 	 * Stone.
@@ -75,8 +77,8 @@ public enum APMaterial {
 			(byte) 67, (byte) 67, (byte) 67, (byte) 255, (byte) 67, (byte) 67,
 			(byte) 67, (byte) 255, (byte) 127, (byte) 127, (byte) 127,
 			(byte) 255, (byte) 7, (byte) 7, (byte) 7, (byte) 255, (byte) 187,
-			(byte) 187, (byte) 187, (byte) 255 }, false, false, false, 0,
-			(short) 4, 4, 0.4f, "Stone"),
+			(byte) 187, (byte) 187, (byte) 255 }, false, false, 0, (short) 4,
+			4, "Stone"),
 
 	/**
 	 * Steam.
@@ -87,7 +89,7 @@ public enum APMaterial {
 			(byte) 165, (byte) 165, (byte) 30, (byte) 205, (byte) 205,
 			(byte) 205, (byte) 30, (byte) 135, (byte) 135, (byte) 135,
 			(byte) 30, (byte) 245, (byte) 245, (byte) 245, (byte) 30 }, true,
-			false, false, 0.4f, (short) 5, 1, 0, "Steam"),
+			false, 0.4f, (short) 5, 1, "Steam"),
 
 	/**
 	 * Wood.
@@ -97,8 +99,8 @@ public enum APMaterial {
 			(byte) 115, (byte) 64, (byte) 19, (byte) 255, (byte) 115,
 			(byte) 64, (byte) 19, (byte) 255, (byte) 155, (byte) 100,
 			(byte) 70, (byte) 255, (byte) 85, (byte) 40, (byte) 5, (byte) 255,
-			(byte) 185, (byte) 150, (byte) 120, (byte) 255 }, false, false,
-			false, 0, (short) 6, 3, 0.2f, "Wood"),
+			(byte) 185, (byte) 150, (byte) 120, (byte) 255 }, false, false, 0,
+			(short) 6, 3, "Wood"),
 
 	/**
 	 * Ice.
@@ -109,7 +111,17 @@ public enum APMaterial {
 			(byte) 255, (byte) 55, (byte) 225, (byte) 225, (byte) 255,
 			(byte) 55, (byte) 180, (byte) 180, (byte) 225, (byte) 55,
 			(byte) 245, (byte) 245, (byte) 255, (byte) 55 }, false, true,
-			false, 0.01f, (short) 7, 3, 0.1f, "Ice");
+			0.01f, (short) 7, 3, "Ice"),
+
+	/**
+	 * Bouncy Ball.
+	 */
+	BALL(new byte[] { (byte) 255, (byte) 192, (byte) 203, (byte) 200,
+			(byte) 166, (byte) 176, (byte) 255, (byte) 220, (byte) 225,
+			(byte) 180, (byte) 153, (byte) 160, (byte) 255, (byte) 163,
+			(byte) 170, (byte) 123, (byte) 100, (byte) 103, (byte) 220,
+			(byte) 197, (byte) 200, (byte) 230, (byte) 197, (byte) 222 },
+			false, false, 0f, (short) 8, 3, "Bouncy Ball");
 
 	private byte[] color = new byte[96];
 	private boolean isBuoyant, isLiquid;
@@ -135,8 +147,6 @@ public enum APMaterial {
 	 *            flag indicating buoyancy
 	 * @param isLiquid
 	 *            flag indicating if this is a fluid
-	 * @param movesOB
-	 *            unused
 	 * @param flowChance
 	 *            if the material is a fluid, indicates the chance of the fluid
 	 *            flowing
@@ -144,15 +154,17 @@ public enum APMaterial {
 	 *            the id associated with the material
 	 * @param density
 	 *            the density of the material used in sinking and rising
-	 * @param elasticity
-	 * 			  (0-1) a number specifying how elastic (or bouncy) the material is
 	 * @param name
 	 *            the name of the material displayed in the material chooser
 	 */
 
 	APMaterial(byte[] colors, boolean isBuoyant, boolean isLiquid,
-			boolean movesOB, float flowChance, short ID, int density,
-			float elasticity, String name) {
+			float flowChance, short ID, int density, String name) {
+
+		if (colors.length != 24)
+			throw new ArrayIndexOutOfBoundsException(
+					"Color array not of length 24");
+
 		int i = 0;
 
 		for (; i < 16; i++)

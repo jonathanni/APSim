@@ -1,6 +1,8 @@
 package com.prodp.apsim;
 
+import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
+import javax.vecmath.Vector3f;
 
 // Utility class for internal array processes
 
@@ -225,10 +227,13 @@ public class APArrayUtils extends APObject {
 	 * 2011 (fix for possible rounding errors)
 	 ******************************************************************************/
 
-	private static void collision3D(float R, float m1, float m2, float r1,
-			float r2, float x1, float y1, float z1, float x2, float y2,
-			float z2, float vx1, float vy1, float vz1, float vx2, float vy2,
-			float vz2, int error) {
+	private static int collision3D(boolean bouncy, float m1, float m2,
+			float r1, float r2, Point3f pf1, Point3f pf2, Vector3f vf1,
+			Vector3f vf2) {
+
+		float R = bouncy ? 1 : (float) Math.random();
+		float x1 = pf1.x, y1 = pf1.y, z1 = pf1.z, x2 = pf2.x, y2 = pf2.y, z2 = pf2.z;
+		float vx1 = vf1.x, vy1 = vf1.y, vz1 = vf1.z, vx2 = vf2.x, vy2 = vf2.y, vz2 = vf2.z;
 
 		float pi, r12, m21, d, v, theta2, phi2, st, ct, sp, cp, vx1r, vy1r, vz1r;
 		float fvz1r, thetav, phiv, dr, alpha, beta, sbeta, cbeta, t, a, dvz2;
@@ -236,7 +241,6 @@ public class APArrayUtils extends APObject {
 
 		// **** initialize some variables ****
 		pi = (float) Math.acos(-1.0E0);
-		error = 0;
 		r12 = r1 + r2;
 		m21 = m2 / m1;
 		x21 = x2 - x1;
@@ -255,16 +259,12 @@ public class APArrayUtils extends APObject {
 		v = (float) Math.sqrt(vx21 * vx21 + vy21 * vy21 + vz21 * vz21);
 
 		// **** return if distance between balls smaller than sum of radii ****
-		if (d < r12) {
-			error = 2;
-			return;
-		}
+		if (d < r12)
+			return 2;
 
 		// **** return if relative speed = 0 ****
-		if (v == 0) {
-			error = 1;
-			return;
-		}
+		if (v == 0)
+			return 1;
 
 		// **** shift coordinate system so that ball 1 is at the origin ***
 		x2 = x21;
@@ -278,11 +278,8 @@ public class APArrayUtils extends APObject {
 
 		// **** find the polar coordinates of the location of ball 2 ***
 		theta2 = (float) Math.acos(z2 / d);
-		if (x2 == 0 && y2 == 0) {
-			phi2 = 0;
-		} else {
-			phi2 = (float) Math.atan2(y2, x2);
-		}
+		phi2 = (x2 == 0 && y2 == 0 ? 0 : (float) Math.atan2(y2, x2));
+
 		st = (float) Math.sin(theta2);
 		ct = (float) Math.cos(theta2);
 		sp = (float) Math.sin(phi2);
@@ -294,18 +291,16 @@ public class APArrayUtils extends APObject {
 		vy1r = cp * vy1 - sp * vx1;
 		vz1r = st * cp * vx1 + st * sp * vy1 + ct * vz1;
 		fvz1r = vz1r / v;
-		if (fvz1r > 1) {
+
+		if (fvz1r > 1)
 			fvz1r = 1;
-		} // fix for possible rounding errors
-		else if (fvz1r < -1) {
+		// fix for possible rounding errors
+		else if (fvz1r < -1)
 			fvz1r = -1;
-		}
+
 		thetav = (float) Math.acos(fvz1r);
-		if (vx1r == 0 && vy1r == 0) {
-			phiv = 0;
-		} else {
-			phiv = (float) Math.atan2(vy1r, vx1r);
-		}
+
+		phiv = (vx1r == 0 && vy1r == 0 ? 0 : (float) Math.atan2(vy1r, vx1r));
 
 		// **** calculate the normalized impact parameter ***
 		dr = (float) (d * Math.sin(thetav) / r12);
@@ -318,8 +313,7 @@ public class APArrayUtils extends APObject {
 			vx1 = vx1 + vx2;
 			vy1 = vy1 + vy2;
 			vz1 = vz1 + vz2;
-			error = 1;
-			return;
+			return 1;
 		}
 
 		// **** calculate impact angles if balls do collide ***
@@ -371,10 +365,12 @@ public class APArrayUtils extends APObject {
 		vr2x = (vx2 - vx_cm) * R + vx_cm;
 		vr2y = (vy2 - vy_cm) * R + vy_cm;
 		vr2z = (vz2 - vz_cm) * R + vz_cm;
+
+		return 0;
 	}
 
 	private static final float jitter(boolean active) {
-		return active ? ((float) Math.random() * .4f - .2f) : 0;
+		return active ? (float) Math.random() - 0.5f : 0;
 	}
 
 	/**
@@ -413,36 +409,47 @@ public class APArrayUtils extends APObject {
 		targetStatMat = APMaterialsList
 				.getMaterialByID(process.status[index_checked]);
 
-		float r = (float) (Math.random() / 2);
 		boolean jitter = false;
 
 		// Spread All Liquids
-		if ((currentStatMat.getIsLiquid() || currentStatMat.getIsBuoyant())
-				&& (targetStatMat.getIsLiquid() || targetStatMat.getIsBuoyant())
-				&& APFinalData.random.nextDouble() < currentStatMat
-						.getFlowChance())
+		if (((currentStatMat.getIsLiquid() || currentStatMat.getIsBuoyant())
+				&& (targetStatMat.getIsLiquid() || targetStatMat.getIsBuoyant()) && APFinalData.random
+				.nextDouble() < currentStatMat.getFlowChance())
+				|| currentStatMat.equals(APMaterial.BALL))
 			jitter = true;
 
-		collision3D(r, 1, 1, 0.5f, 0.5f, (float) process.realcoords[index * 3],
+		Point3f jp = new Point3f(jitter(jitter), jitter(jitter), jitter(jitter));
+		Point3f p1 = new Point3f((float) process.realcoords[index * 3],
 				(float) process.realcoords[index * 3 + 1],
-				(float) process.realcoords[index * 3 + 2],
-				(float) process.realcoords[index_checked * 3],
-				(float) process.realcoords[index_checked * 3 + 1],
-				(float) process.realcoords[index_checked * 3 + 2],
-				process.dVelocity[index].x, process.dVelocity[index].y,
-				process.dVelocity[index].z, process.dVelocity[index_checked].x,
-				process.dVelocity[index_checked].y,
-				process.dVelocity[index_checked].z, error);
+				(float) process.realcoords[index * 3 + 2]);
+		p1.add(jp);
+
+		error = collision3D(
+				currentStatMat.equals(APMaterial.BALL),
+				1,
+				1,
+				(float) Math.sqrt(Math.pow(jp.x, 2) + Math.pow(1 + jp.y, 2)
+						+ Math.pow(jp.z, 2)) - 0.5f,
+				0.5f,
+				p1,
+				new Point3f((float) process.realcoords[index_checked * 3],
+						(float) process.realcoords[index_checked * 3 + 1],
+						(float) process.realcoords[index_checked * 3 + 2]),
+				new Vector3f(process.dVelocity[index].x,
+						process.dVelocity[index].y, process.dVelocity[index].z),
+				new Vector3f(process.dVelocity[index_checked].x,
+						process.dVelocity[index_checked].y,
+						process.dVelocity[index_checked].z));
 
 		if (error == 0) {
 
-			process.dVelocity[index].x = vr1x + jitter(jitter);
-			process.dVelocity[index].y = vr1y + jitter(jitter);
-			process.dVelocity[index].z = vr1z + jitter(jitter);
+			process.dVelocity[index].x = vr1x;
+			process.dVelocity[index].y = vr1y;
+			process.dVelocity[index].z = vr1z;
 
-			process.dVelocity[index_checked].x = vr2x + jitter(jitter);
-			process.dVelocity[index_checked].y = vr2y + jitter(jitter);
-			process.dVelocity[index_checked].z = vr2z + jitter(jitter);
+			process.dVelocity[index_checked].x = vr2x;
+			process.dVelocity[index_checked].y = vr2y;
+			process.dVelocity[index_checked].z = vr2z;
 		}
 	}
 
@@ -633,17 +640,24 @@ public class APArrayUtils extends APObject {
 
 		// simple "Friction"
 
-		process.dVelocity[i].x -= Math.abs(process.dVelocity[i].x) < 1 ? process.dVelocity[i].x
-				: Math.signum(process.dVelocity[i].x);
-		process.dVelocity[i].y -= 0.5f * 1.225f * 0.49f
+		float k = 0.5f * 1.225f * 0.49f;
+		process.dVelocity[i].x -= (Math.abs(process.dVelocity[i].x) < 1 ? process.dVelocity[i].x
+				: Math.signum(process.dVelocity[i].x))
+				+ k
+				* (process.dVelocity[i].x * Math.abs(process.dVelocity[i].x))
+				/ 1000.0f;
+		process.dVelocity[i].y -= k
 				* (process.dVelocity[i].y * Math.abs(process.dVelocity[i].y))
 				/ 1000.0f;
 		// a = F/m, Fd=1/2pv^2CdA (Newton's second law, drag equation)
-		process.dVelocity[i].z -= Math.abs(process.dVelocity[i].z) < 1 ? process.dVelocity[i].z
-				: Math.signum(process.dVelocity[i].z);
+		process.dVelocity[i].z -= (Math.abs(process.dVelocity[i].z) < 1 ? process.dVelocity[i].z
+				: Math.signum(process.dVelocity[i].z))
+				+ k
+				* (process.dVelocity[i].z * Math.abs(process.dVelocity[i].z))
+				/ 1000.0f;
 
-		// Round 2 setting
-		APVelocity addend = new APVelocity(process.dVelocity[i]);
+		// Round 2 setting (tick is 0.1 seconds, so must divide by 10)
+		APVelocity addend = new APVelocity(process.dVelocity[i].multiply(0.1f));
 		Point3i point = new Point3i(process.realcoords[i * 3] + addend.x,
 				process.realcoords[i * 3 + 1] + addend.y,
 				process.realcoords[i * 3 + 2] + addend.z);
@@ -677,8 +691,6 @@ public class APArrayUtils extends APObject {
 				computeAroundIndices(process, rec);
 		}
 
-		APMain.debug(process.dVelocity[i]);
-
 	}
 
 	/**
@@ -695,16 +707,24 @@ public class APArrayUtils extends APObject {
 				.isLiquid((short) i)))
 			return;
 
-		float cohesionRate = 2;
+		float cohesionRate = 1f;
 		int index = isAroundLiquid(process, 2, i);
 
 		if (index != -1 && process.status[index] != 0) {
-			process.dVelocity[i].x += (process.realcoords[index * 3] - process.realcoords[i * 3])
-					* cohesionRate;
-			process.dVelocity[i].y += (process.realcoords[index * 3 + 1] - process.realcoords[i * 3 + 1])
-					* cohesionRate;
-			process.dVelocity[i].z += (process.realcoords[index * 3 + 2] - process.realcoords[i * 3 + 2])
-					* cohesionRate;
+
+			float ratex = (process.realcoords[index * 3] - process.realcoords[i * 3])
+					/ 2f * cohesionRate, ratey = (process.realcoords[index * 3 + 1] - process.realcoords[i * 3 + 1])
+					/ 2f * cohesionRate, ratez = (process.realcoords[index * 3 + 2] - process.realcoords[i * 3 + 2])
+					/ 2f * cohesionRate;
+
+			process.dVelocity[i].x += ratex;
+			process.dVelocity[i].y += ratey;
+			process.dVelocity[i].z += ratez;
+
+			process.dVelocity[index].x -= ratex;
+			process.dVelocity[index].y -= ratey;
+			process.dVelocity[index].z -= ratez;
+
 			return;
 		}
 

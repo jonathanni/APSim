@@ -37,7 +37,7 @@ public class APProcess {
 	APWorld save;
 
 	// material
-	private APMaterial currentMat = APMaterial.WATER; // default
+	private APMaterial currentMat = APFinalData.DEFAULT_MAT; // default
 
 	// viewpoint rotation x and y, with mouse x and y angles
 	private volatile double rotateX, rotateY;
