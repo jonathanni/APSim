@@ -1,5 +1,6 @@
 package com.prodp.apsim;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import javax.media.j3d.Appearance;
@@ -39,7 +40,8 @@ public class APSky extends Sphere {
 				| Sphere.GENERATE_NORMALS_INWARD, new Appearance());
 
 		setTexture(new TextureLoader(new APRandImage(200, 200,
-				BufferedImage.TYPE_3BYTE_BGR)).getTexture());
+				BufferedImage.TYPE_3BYTE_BGR, Color.BLACK, Color.WHITE))
+				.getTexture());
 	}
 
 	private void setTexture(Texture tex) {

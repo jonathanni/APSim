@@ -39,6 +39,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -63,6 +64,7 @@ import javax.media.j3d.GraphicsConfigTemplate3D;
 import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.QuadArray;
 import javax.media.j3d.Shape3D;
+import javax.media.j3d.TextureAttributes;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.swing.ImageIcon;
@@ -95,6 +97,7 @@ import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.theme.DesertBluer;
 import com.sun.j3d.utils.geometry.Box;
+import com.sun.j3d.utils.image.TextureLoader;
 
 /**
  * 
@@ -616,9 +619,25 @@ public class APProcessHandler extends APObject implements ActionListener,
 			}
 		}
 
+		// Set up the grass
+		Transform3D grass3d = new Transform3D();
+		grass3d.setScale(50);
+
+		TextureAttributes ta = new TextureAttributes();
+		ta.setTextureMode(TextureAttributes.MODULATE);
+		ta.setPerspectiveCorrectionMode(TextureAttributes.NICEST);
+		ta.setTextureTransform(grass3d);
+
+		Appearance floorapp = new Appearance();
+		floorapp.setTexture(new TextureLoader(new APRandImage(1024, 1024,
+				BufferedImage.TYPE_3BYTE_BGR, new Color(111, 71, 40),
+				new Color(50, 30, 7), new Color(104, 57, 23), new Color(22,12,6)), "RGB", null)
+				.getTexture());
+		floorapp.setTextureAttributes(ta);
+
 		// Referencing the position of the floor to floorcoord
 		APFinalData.floor.setCoordRefFloat(APFinalData.floorcoord);
-		APFinalData.floor.setColorRefFloat(APFinalData.floorcolor);
+		APFinalData.floor.setTexCoordRefFloat(0, APFinalData.floortex);
 
 		// Hide the cursor
 		c3d.setCursor(APFinalData.transparentCursor);
@@ -682,6 +701,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 		aobjects.addGeometry(cMain);
 		aobjects.setAppearance(NO_CULL);
 		ground.addGeometry(APFinalData.floor);
+		ground.setAppearance(floorapp);
 
 		// Initialize the AmbientLight
 		APFinalData.whiteLight.setInfluencingBounds(bounds);

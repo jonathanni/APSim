@@ -148,17 +148,17 @@ public class APFinalData extends APObject {
 
 	// ground
 	public static final QuadArray floor = new QuadArray(4,
-			QuadArray.COORDINATES | QuadArray.COLOR_3 | QuadArray.BY_REFERENCE);
+			QuadArray.COORDINATES | QuadArray.TEXTURE_COORDINATE_2
+					| QuadArray.BY_REFERENCE);
 
 	/**
 	 * 
-	 * The colors of the floor.
+	 * The texture coordinates of the floor.
 	 * 
 	 */
 
 	// floor data
-	public static final float[] floorcolor = new float[] { 0.22f, 0.44f, 0.8f,
-			0.22f, 0.44f, 0.8f, 0.22f, 0.44f, 0.8f, 0.22f, 0.44f, 0.8f };
+	public static final float[] floortex = new float[] { 0, 0, 1, 0, 1, 1, 0, 1 };
 
 	/**
 	 * 
@@ -1279,7 +1279,7 @@ public class APFinalData extends APObject {
 	/**
 	 * Default material.
 	 */
-	
+
 	public static final APMaterial DEFAULT_MAT = APMaterial.WATER;
-	
+
 }
