@@ -47,9 +47,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,7 +83,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3i;
-import javax.vecmath.Tuple3i;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
@@ -96,7 +94,6 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.theme.DesertBluer;
-import com.sun.j3d.utils.geometry.Box;
 import com.sun.j3d.utils.image.TextureLoader;
 
 /**
@@ -127,6 +124,8 @@ public class APProcessHandler extends APObject implements ActionListener,
 	 * -private -protected -default -public
 	 */
 
+	private static Vector3d OLD_SR_VECTOR;
+
 	// world objects
 	private static APRenderer c3d;
 	// private SimpleUniverse world;
@@ -149,17 +148,16 @@ public class APProcessHandler extends APObject implements ActionListener,
 	// shapes on scene graph
 	private static final Shape3D ground = new Shape3D();
 	private static final Shape3D aobjects = new Shape3D();
+	private static final Shape3D selections = new Shape3D();
 
 	// selection box
-	private final Box selections = new Box(APFinalData.BOXSIZE / 2,
-			APFinalData.BOXSIZE / 2, APFinalData.BOXSIZE / 2,
-			APFinalData.wireframe);
+	private static QuadArray selection = new QuadArray(APFinalData.brushlocs
+			.get(APFinalData.MAX_BRUSH_SIZE).size() * 24, QuadArray.COORDINATES
+			| QuadArray.BY_REFERENCE);
+	private static float[] selectionCoords = new float[APFinalData.brushlocs
+			.get(APFinalData.MAX_BRUSH_SIZE).size() * 72];
 
-	// viewpoint and selection transform
 	private static Transform3D mainRoutineFinalTransform = new Transform3D();
-	private static HashMap<Integer, ArrayList<TransformGroup>> selectionGroups = new HashMap<Integer, ArrayList<TransformGroup>>();
-	private static HashMap<Integer, ArrayList<Transform3D>> selectionRoutines = new HashMap<Integer, ArrayList<Transform3D>>();
-	private static BranchGroup[] brushGroups = new BranchGroup[APFinalData.MAX_BRUSH_SIZE];
 
 	// setting sensitivity
 	private static int sensitivity = 90;
@@ -187,7 +185,13 @@ public class APProcessHandler extends APObject implements ActionListener,
 	private static Transform3D skyTrans = new Transform3D();
 	private static double skyRot = 0;
 
-	volatile static boolean isLeftMouseDown = false; // do not remove this
+	// number of blocks on scene
+	private static int blockNumber = 0;
+
+	volatile static boolean isLeftMouseDown = false, isRightMouseDown = false; // do
+																				// not
+																				// remove
+																				// this
 
 	// key detection flags
 	volatile static boolean[] keys = new boolean[14];
@@ -325,9 +329,10 @@ public class APProcessHandler extends APObject implements ActionListener,
 		APProcess process = APList.getCurrentProcess();
 
 		if (process.getBrushSize() != APFinalData.MAX_BRUSH_SIZE - 1) {
-			brushGroups[process.getBrushSize()].detach();
 			process.setBrushSize(process.getBrushSize() + 1);
-			APFinalData.brushes.addChild(brushGroups[process.getBrushSize()]);
+
+			// Force the brush to update
+			OLD_SR_VECTOR = null;
 		}
 	}
 
@@ -345,9 +350,10 @@ public class APProcessHandler extends APObject implements ActionListener,
 		APProcess process = APList.getCurrentProcess();
 
 		if (process.getBrushSize() != 0) {
-			brushGroups[process.getBrushSize()].detach();
 			process.setBrushSize(process.getBrushSize() - 1);
-			APFinalData.brushes.addChild(brushGroups[process.getBrushSize()]);
+
+			// Force the brush to update
+			OLD_SR_VECTOR = null;
 		}
 	}
 
@@ -375,9 +381,9 @@ public class APProcessHandler extends APObject implements ActionListener,
 		process.setBoxHidden(!process.isBoxHidden());
 
 		if (process.isBoxHidden())
-			brushGroups[process.getBrushSize()].detach();
+			Arrays.fill(selectionCoords, -1);
 		else
-			APFinalData.brushes.addChild(brushGroups[process.getBrushSize()]);
+			selectionCoords = APFinalData.spherecoords[process.getBrushSize()];
 	}
 
 	/**
@@ -528,6 +534,14 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 	// Ugly initialization code
 
+	public static int getBlockNumber() {
+		return blockNumber;
+	}
+
+	public static void setBlockNumber(int blockNumber) {
+		APProcessHandler.blockNumber = blockNumber;
+	}
+
 	/**
 	 * 
 	 * Sets up the whole game.
@@ -586,39 +600,6 @@ public class APProcessHandler extends APObject implements ActionListener,
 		// The default position
 		mainRoutineFinalTransform.setTranslation(new Vector3f(0, 0, 0));
 
-		// The selection box positioning
-
-		for (int i = 0; i < APFinalData.brushlocs.size() - 1; i++) {
-			selectionGroups.put(i, new ArrayList<TransformGroup>());
-			selectionRoutines.put(i, new ArrayList<Transform3D>());
-			brushGroups[i] = new BranchGroup();
-
-			for (int j = 0; j < APFinalData.brushlocs.get(i).size(); j++) {
-
-				selectionGroups.get(i).add(new TransformGroup());
-				selectionRoutines.get(i).add(new Transform3D());
-
-				selectionGroups
-						.get(i)
-						.get(j)
-						.addChild(
-								new Box(selections.getXdimension(), selections
-										.getYdimension(), selections
-										.getZdimension(), selections
-										.getAppearance()));
-				selectionGroups.get(i).get(j)
-						.setTransform(selectionRoutines.get(i).get(j));
-
-				selectionGroups.get(i).get(j)
-						.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-				selectionGroups.get(i).get(j)
-						.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-
-				brushGroups[i].addChild(selectionGroups.get(i).get(j));
-				brushGroups[i].setCapability(BranchGroup.ALLOW_DETACH);
-			}
-		}
-
 		// Set up the grass
 		Transform3D grass3d = new Transform3D();
 		grass3d.setScale(50);
@@ -631,8 +612,8 @@ public class APProcessHandler extends APObject implements ActionListener,
 		Appearance floorapp = new Appearance();
 		floorapp.setTexture(new TextureLoader(new APRandImage(1024, 1024,
 				BufferedImage.TYPE_3BYTE_BGR, new Color(111, 71, 40),
-				new Color(50, 30, 7), new Color(104, 57, 23), new Color(22,12,6)), "RGB", null)
-				.getTexture());
+				new Color(50, 30, 7), new Color(104, 57, 23), new Color(22, 12,
+						6)), "RGB", null).getTexture());
 		floorapp.setTextureAttributes(ta);
 
 		// Referencing the position of the floor to floorcoord
@@ -721,11 +702,12 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		back.setGeometry(backgeom);
 
-		// Set dynamic attaching for brushes
-		APFinalData.brushes.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
-		APFinalData.brushes.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-		APFinalData.brushes.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
-		APFinalData.brushes.addChild(brushGroups[0]);
+		// Add the brush
+		selection.setCapability(QuadArray.ALLOW_REF_DATA_WRITE);
+		selections.addGeometry(selection);
+		selections.setAppearance(APFinalData.wireframe);
+
+		APFinalData.brushes.addChild(selections);
 
 		// Scene initialization
 		scene = new APSceneGraph(c3d);
@@ -974,7 +956,6 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 			// if (process.realcoords[i * 3 + 1] != -1)
 			APArrayUtils.setCoordBlocks(process.coords, i * 24 * 3);
-
 			APArrayUtils.setColorBlocks(process.colors,
 					APMaterialsList.getMaterialByID(process.status[i]),
 					i * 24 * 4);
@@ -998,24 +979,15 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 	public static void renewBrushLocs(APProcess process, Vector3d SR_VECTOR) {
 
-		final ArrayList<Tuple3i> locs = APFinalData.brushlocs.get(process
-				.getBrushSize());
-
-		for (int j = 0; j < locs.size(); j++) {
-			Point3i pi = new Point3i(locs.get(j));
-			Point3d point = new Point3d(pi.x * APFinalData.BOXSIZE, pi.y
-					* APFinalData.BOXSIZE, pi.z * APFinalData.BOXSIZE);
-			point.add(SR_VECTOR);
-
-			selectionRoutines.get(process.getBrushSize()).get(j)
-					.set(new Vector3d(point));
-			selectionGroups
-					.get(process.getBrushSize())
-					.get(j)
-					.setTransform(
-							selectionRoutines.get(process.getBrushSize())
-									.get(j));
+		int size = process.getBrushSize();
+		for (int i = 0; i < APFinalData.spherecoords[size].length / 3; i++) {
+			selectionCoords[i * 3] = (float) (APFinalData.spherecoords[size][i * 3] + SR_VECTOR.x);
+			selectionCoords[i * 3 + 1] = (float) (APFinalData.spherecoords[size][i * 3 + 1] + SR_VECTOR.y);
+			selectionCoords[i * 3 + 2] = (float) (APFinalData.spherecoords[size][i * 3 + 2] + SR_VECTOR.z);
 		}
+
+		selection.setCoordRefFloat(selectionCoords);
+
 	}
 
 	private static Vector3d genSelectorVector(APProcess process) {
@@ -1025,7 +997,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 		SR_VECTOR.add(process.getCurPos());
 		SR_VECTOR = Transform3DUtils.roundVector3d(SR_VECTOR,
 				APFinalData.BOXSIZE);
-		SR_VECTOR.add(new Point3d(APFinalData.SHIFT));
+		// SR_VECTOR.add(new Point3d(APFinalData.SHIFT));
 
 		return SR_VECTOR;
 	}
@@ -1047,12 +1019,15 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		process.busy = true;
 
-		TransformGroup Platform = scene.getViewingPlatform()
+		TransformGroup platform = scene.getViewingPlatform()
 				.getViewPlatformTransform();
 
 		Vector3d SR_VECTOR = genSelectorVector(process);
 
-		renewBrushLocs(process, SR_VECTOR);
+		if (!SR_VECTOR.equals(OLD_SR_VECTOR)) {
+			renewBrushLocs(process, SR_VECTOR);
+			OLD_SR_VECTOR = new Vector3d(SR_VECTOR);
+		}
 
 		// Viewpoint
 		mainRoutineFinalTransform.setTranslation(new Vector3f());
@@ -1063,7 +1038,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		bounds.setCenter(process.getCurPos());
 
-		Platform.setTransform(mainRoutineFinalTransform);
+		platform.setTransform(mainRoutineFinalTransform);
 
 		process.busy = false;
 
@@ -1114,12 +1089,10 @@ public class APProcessHandler extends APObject implements ActionListener,
 		for (int i = 0; i < APFinalData.brushlocs.get(process.getBrushSize())
 				.size(); i++) {
 			// Temporary position
-			final Point3d cT = new Point3d(
-					Transform3DUtils.getTransformVector3d(selectionRoutines
-							.get(process.getBrushSize()).get(i)));
+			final Point3d cT = new Point3d(selectionCoords[i * 72],
+					selectionCoords[i * 72 + 1], selectionCoords[i * 72 + 2]);
 
-			// Shift the block a little (Why do I need this?)
-			cT.add(new Point3d(APFinalData.SHIFT));
+			// System.out.println(cT);
 
 			// Get the next available index
 			process.aCount = APArrayUtils.findEmptySpace(process.status);
@@ -1153,6 +1126,59 @@ public class APProcessHandler extends APObject implements ActionListener,
 				APArrayUtils.setCoordBlocks(process.coords, index * 24 * 3);
 				APArrayUtils.setColorBlocks(process.colors,
 						process.getMaterial(), index * 24 * 4);
+
+				blockNumber++;
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * Removes a block from the scene.
+	 * 
+	 * Calculates the positions added via brush box locations, then loops
+	 * through them, removing blocks one by one from the scene. It does not
+	 * remove blocks if there is no block there.
+	 * 
+	 */
+
+	public static void countDown() {
+
+		// This is used a lot
+		final APProcess process = APList.getCurrentProcess();
+
+		for (int i = 0; i < APFinalData.brushlocs.get(process.getBrushSize())
+				.size(); i++) {
+			// Temporary position
+			final Point3d cT = new Point3d(selectionCoords[i * 72],
+					selectionCoords[i * 72 + 1], selectionCoords[i * 72 + 2]);
+
+			final Integer index;
+
+			// Conditionals
+			if (!(cT.y < 0)
+					&& (index = process.reversecoordsort.get(new Point3i(
+							(int) (cT.x / APFinalData.BOXSIZE),
+							(int) (cT.y / APFinalData.BOXSIZE),
+							(int) (cT.z / APFinalData.BOXSIZE)))) != null) {
+				// Null the block
+				process.status[index] = 0;
+
+				// Transfer coordinates
+				process.realcoords[index * 3] = 0;
+				process.realcoords[index * 3 + 1] = -10;
+				process.realcoords[index * 3 + 2] = 0;
+
+				process.coords[index * 24 * 3] = 0;
+				process.coords[index * 24 * 3 + 1] = -10 * APFinalData.BOXSIZE;
+				process.coords[index * 24 * 3 + 2] = 0;
+
+				// Update coord and color
+				APArrayUtils.setCoordBlocks(process.coords, index * 24 * 3);
+				APArrayUtils.setColorBlocks(process.colors, APMaterial.NULL,
+						index * 24 * 4);
+
+				blockNumber--;
 			}
 		}
 	}
@@ -1206,28 +1232,39 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 	}
 
+	/**
+	 * Updates game data in the event that a process is changed.
+	 */
+
+	public static void updateProcess() {
+
+	}
+
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		isLeftMouseDown = false;
+		if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
+			isLeftMouseDown = false;
+		if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
+			isRightMouseDown = false;
 		e.consume();
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		isLeftMouseDown = true;
-		if (e.getModifiers() == InputEvent.BUTTON3_MASK
-				|| e.getModifiers() == InputEvent.BUTTON2_MASK)
-			isLeftMouseDown = false;
+		if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
+			isLeftMouseDown = true;
+		if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
+			isRightMouseDown = true;
 
 		e.consume();
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		isLeftMouseDown = true;
-		if (e.getModifiers() == InputEvent.BUTTON3_MASK
-				|| e.getModifiers() == InputEvent.BUTTON2_MASK)
-			isLeftMouseDown = false;
+		if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
+			isLeftMouseDown = true;
+		if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
+			isRightMouseDown = true;
 
 		if (!APList.getCurrentProcess().isRobot
 				&& !APList.getCurrentProcess().isPaused)
@@ -1365,6 +1402,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 		e.consume();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
@@ -1410,7 +1448,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 							+ "Founder: Jonathan Ni<br />"
 							+ "Lead Programmer: Jonathan Ni<br />"
 							+ "Programmer: Sachin Pandey<br />"
-							+ "Physics Expert: Sachin Pandey<br />"
+							+ "Physics Adviser: Sachin Pandey<br />"
 							+ "PR: Jonathan Ni<br />"
 							+ "Project Manager: Jonathan Ni<br />"
 							+ "Graphics: Alex Yu, Michael Zhang<br /><br />"
@@ -1485,7 +1523,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 			APFinalData.elementop.setVisible(false);
 
 		} else if (e.getSource() == APFinalData.elementChooser)
-			tempelement = (short) ((JComboBox) e.getSource())
+			tempelement = (short) ((JComboBox<String>) e.getSource())
 					.getSelectedIndex();
 
 		else if (e.getSource() == APFinalData.Element_Cancel)

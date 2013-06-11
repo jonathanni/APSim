@@ -32,7 +32,7 @@ public class APArrayUtils extends APObject {
 
 	private static int[] indices = new int[27];
 	private static final Flagger fl = new Flagger(APFinalData.LIMIT);
-	private static float vr1x = 0, vr1y = 0, vr1z = 0, vr2x = 0, vr2y = 0,
+	private static double vr1x = 0, vr1y = 0, vr1z = 0, vr2x = 0, vr2y = 0,
 			vr2z = 0;
 	private static int error;
 
@@ -231,16 +231,19 @@ public class APArrayUtils extends APObject {
 			float r1, float r2, Point3f pf1, Point3f pf2, Vector3f vf1,
 			Vector3f vf2) {
 
-		float R = bouncy ? 1 : (float) Math.random();
-		float x1 = pf1.x, y1 = pf1.y, z1 = pf1.z, x2 = pf2.x, y2 = pf2.y, z2 = pf2.z;
-		float vx1 = vf1.x, vy1 = vf1.y, vz1 = vf1.z, vx2 = vf2.x, vy2 = vf2.y, vz2 = vf2.z;
+		double R = bouncy ? 1 : Math.random();
+		double x1 = pf1.x, y1 = pf1.y, z1 = pf1.z, x2 = pf2.x, y2 = pf2.y, z2 = pf2.z;
+		double vx1 = vf1.x, vy1 = vf1.y, vz1 = vf1.z, vx2 = vf2.x, vy2 = vf2.y, vz2 = vf2.z;
 
-		float pi, r12, m21, d, v, theta2, phi2, st, ct, sp, cp, vx1r, vy1r, vz1r;
-		float fvz1r, thetav, phiv, dr, alpha, beta, sbeta, cbeta, t, a, dvz2;
-		float vx2r, vy2r, vz2r, x21, y21, z21, vx21, vy21, vz21, vx_cm, vy_cm, vz_cm;
+		final double r12, m21, d, v, theta2, phi2, st, ct, sp, cp;
+		double vx1r;
+		double vy1r;
+		double vz1r;
+		double fvz1r;
+		final double thetav, phiv, dr, alpha, beta, sbeta, cbeta, t, a, dvz2;
+		final double vx2r, vy2r, vz2r, x21, y21, z21, vx21, vy21, vz21, vx_cm, vy_cm, vz_cm;
 
 		// **** initialize some variables ****
-		pi = (float) Math.acos(-1.0E0);
 		r12 = r1 + r2;
 		m21 = m2 / m1;
 		x21 = x2 - x1;
@@ -255,8 +258,8 @@ public class APArrayUtils extends APObject {
 		vz_cm = (m1 * vz1 + m2 * vz2) / (m1 + m2);
 
 		// **** calculate relative distance and relative speed ***
-		d = (float) Math.sqrt(x21 * x21 + y21 * y21 + z21 * z21);
-		v = (float) Math.sqrt(vx21 * vx21 + vy21 * vy21 + vz21 * vz21);
+		d = Math.sqrt(x21 * x21 + y21 * y21 + z21 * z21);
+		v = Math.sqrt(vx21 * vx21 + vy21 * vy21 + vz21 * vz21);
 
 		// **** return if distance between balls smaller than sum of radii ****
 		if (d < r12)
@@ -277,13 +280,13 @@ public class APArrayUtils extends APObject {
 		vz1 = -vz21;
 
 		// **** find the polar coordinates of the location of ball 2 ***
-		theta2 = (float) Math.acos(z2 / d);
-		phi2 = (x2 == 0 && y2 == 0 ? 0 : (float) Math.atan2(y2, x2));
+		theta2 = Math.acos(z2 / d);
+		phi2 = (x2 == 0 && y2 == 0 ? 0 : Math.atan2(y2, x2));
 
-		st = (float) Math.sin(theta2);
-		ct = (float) Math.cos(theta2);
-		sp = (float) Math.sin(phi2);
-		cp = (float) Math.cos(phi2);
+		st = Math.sin(theta2);
+		ct = Math.cos(theta2);
+		sp = Math.sin(phi2);
+		cp = Math.cos(phi2);
 
 		// **** express the velocity vector of ball 1 in a rotated coordinate
 		// system where ball 2 lies on the z-axis ******
@@ -298,15 +301,15 @@ public class APArrayUtils extends APObject {
 		else if (fvz1r < -1)
 			fvz1r = -1;
 
-		thetav = (float) Math.acos(fvz1r);
+		thetav = Math.acos(fvz1r);
 
-		phiv = (vx1r == 0 && vy1r == 0 ? 0 : (float) Math.atan2(vy1r, vx1r));
+		phiv = (vx1r == 0 && vy1r == 0 ? 0 : Math.atan2(vy1r, vx1r));
 
 		// **** calculate the normalized impact parameter ***
-		dr = (float) (d * Math.sin(thetav) / r12);
+		dr = (d * Math.sin(thetav) / r12);
 
 		// **** return old positions and velocities if balls do not collide ***
-		if (thetav > pi / 2 || Math.abs(dr) > 1) {
+		if (thetav > Math.PI / 2 || Math.abs(dr) > 1) {
 			x2 = x2 + x1;
 			y2 = y2 + y1;
 			z2 = z2 + z1;
@@ -317,13 +320,13 @@ public class APArrayUtils extends APObject {
 		}
 
 		// **** calculate impact angles if balls do collide ***
-		alpha = (float) Math.asin(-dr);
+		alpha = Math.asin(-dr);
 		beta = phiv;
-		sbeta = (float) Math.sin(beta);
-		cbeta = (float) Math.cos(beta);
+		sbeta = Math.sin(beta);
+		cbeta = Math.cos(beta);
 
 		// **** calculate time to collision ***
-		t = (float) ((d * Math.cos(thetav) - r12 * Math.sqrt(1 - dr * dr)) / v);
+		t = ((d * Math.cos(thetav) - r12 * Math.sqrt(1 - dr * dr)) / v);
 
 		// **** update positions and reverse the coordinate shift ***
 		x2 = x2 + vx2 * t + x1;
@@ -335,7 +338,7 @@ public class APArrayUtils extends APObject {
 
 		// *** update velocities ***
 
-		a = (float) Math.tan(thetav + alpha);
+		a = Math.tan(thetav + alpha);
 
 		dvz2 = 2 * (vz1r + a * (cbeta * vx1r + sbeta * vy1r))
 				/ ((1 + a * a) * (1 + m21));
@@ -343,9 +346,9 @@ public class APArrayUtils extends APObject {
 		vz2r = dvz2;
 		vx2r = a * cbeta * dvz2;
 		vy2r = a * sbeta * dvz2;
-		vz1r = vz1r - m21 * vz2r;
-		vx1r = vx1r - m21 * vx2r;
-		vy1r = vy1r - m21 * vy2r;
+		vz1r -= m21 * vz2r;
+		vx1r -= m21 * vx2r;
+		vy1r -= m21 * vy2r;
 
 		// **** rotate the velocity vectors back and add the initial velocity
 		// vector of ball 2 to retrieve the original coordinate system ****
@@ -443,13 +446,13 @@ public class APArrayUtils extends APObject {
 
 		if (error == 0) {
 
-			process.dVelocity[index].x = vr1x;
-			process.dVelocity[index].y = vr1y;
-			process.dVelocity[index].z = vr1z;
+			process.dVelocity[index].x = (float) vr1x;
+			process.dVelocity[index].y = (float) vr1y;
+			process.dVelocity[index].z = (float) vr1z;
 
-			process.dVelocity[index_checked].x = vr2x;
-			process.dVelocity[index_checked].y = vr2y;
-			process.dVelocity[index_checked].z = vr2z;
+			process.dVelocity[index_checked].x = (float) vr2x;
+			process.dVelocity[index_checked].y = (float) vr2y;
+			process.dVelocity[index_checked].z = (float) vr2z;
 		}
 	}
 
@@ -461,7 +464,6 @@ public class APArrayUtils extends APObject {
 	 * @deprecated
 	 */
 
-	@SuppressWarnings("unused")
 	private static final void performLiquidFlow(final APProcess process,
 			final int index) {
 		return;
@@ -586,21 +588,24 @@ public class APArrayUtils extends APObject {
 		 * Brute force search!! (Not good)
 		 */
 
-		for (int i = -1; i <= 1; i++)
-			for (int k = -1; k <= 1; k++)
-				for (int l = -1; l <= 1; l++) {
-					Point3i loccoord = new Point3i(coordinate.x + i,
-							coordinate.y + k, coordinate.z + l);
-					Integer putindex;
+		for (Point3i order : APFinalData.indexorder) {
+			Point3i loccoord = new Point3i(order);
+			loccoord.add(coordinate);
+			Integer putindex = process.reversecoordsort.get(loccoord);
 
-					putindex = process.reversecoordsort.get(loccoord);
-
-					if (putindex != null)
-						indices[(i + 1) * 9 + (k + 1) * 3 + (l + 1)] = putindex;
-					else
-						indices[(i + 1) * 9 + (k + 1) * 3 + (l + 1)] = -1;
-				}
-
+			indices[(order.x + 1) * 9 + (order.y + 1) * 3 + (order.z + 1)] = (putindex != null ? putindex
+					: -1);
+		}
+		/*
+		 * for (int i = -1; i <= 1; i++) for (int k = -1; k <= 1; k++) for (int
+		 * l = -1; l <= 1; l++) { Point3i loccoord = new Point3i(coordinate.x +
+		 * i, coordinate.y + k, coordinate.z + l); Integer putindex;
+		 * 
+		 * putindex = process.reversecoordsort.get(loccoord);
+		 * 
+		 * if (putindex != null) indices[(i + 1) * 9 + (k + 1) * 3 + (l + 1)] =
+		 * putindex; else indices[(i + 1) * 9 + (k + 1) * 3 + (l + 1)] = -1; }
+		 */
 		indices[13] = -1; // center block is own block
 	}
 
@@ -665,7 +670,6 @@ public class APArrayUtils extends APObject {
 		// Ground absorbs all force
 		if (point.y < 0) {
 			process.dVelocity[i].y = 0;
-
 			return;
 		}
 
@@ -724,10 +728,7 @@ public class APArrayUtils extends APObject {
 			process.dVelocity[index].x -= ratex;
 			process.dVelocity[index].y -= ratey;
 			process.dVelocity[index].z -= ratez;
-
-			return;
 		}
-
 	}
 
 	/**

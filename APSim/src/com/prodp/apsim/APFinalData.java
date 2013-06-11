@@ -184,7 +184,16 @@ public class APFinalData extends APObject {
 	 * 
 	 */
 
-	public static final HashMap<Integer, ArrayList<Tuple3i>> brushlocs = createBrushLocs(MAX_BRUSH_SIZE);
+	public static final HashMap<Integer, ArrayList<Tuple3i>> brushlocs;
+
+	/**
+	 * 
+	 * The exact spherical coordinates (each face on the cube) of each block on
+	 * the brush.
+	 * 
+	 */
+
+	public static final float[][] spherecoords;
 
 	/**
 	 * 
@@ -608,21 +617,22 @@ public class APFinalData extends APObject {
 
 	/**
 	 * 
-	 * Tells the game to put blocks.
+	 * Tells the game to put blocks and remove blocks. Left click spray, right
+	 * click vacuum.
 	 * 
 	 */
 
-	public static final JRadioButtonMenuItem Spray = new JRadioButtonMenuItem(
-			"Spray", true);
+	public static final JRadioButtonMenuItem SprayVacuum = new JRadioButtonMenuItem(
+			"Spray/Vaccuum", true);
 
 	/**
 	 * 
-	 * Tells the game to remove blocks.
+	 * Wind tool.
 	 * 
 	 */
 
-	public static final JRadioButtonMenuItem Vacuum = new JRadioButtonMenuItem(
-			"Vacuum", false);
+	public static final JRadioButtonMenuItem Wind = new JRadioButtonMenuItem(
+			"Wind", false);
 
 	/**
 	 * 
@@ -654,7 +664,7 @@ public class APFinalData extends APObject {
 	 */
 
 	// Version number
-	private static final String VERSION = "V0.2.0.0pa UF0";
+	private static final String VERSION = "V0.2.0.1pa";
 
 	/**
 	 * 
@@ -667,6 +677,70 @@ public class APFinalData extends APObject {
 	// Version Function
 	protected static final String getVersion() {
 		return VERSION;
+	}
+
+	static {
+		brushlocs = createBrushLocs(MAX_BRUSH_SIZE);
+		spherecoords = getSphereCoords();
+	}
+
+	private static final float[][] getSphereCoords() {
+
+		float[][] ret = new float[MAX_BRUSH_SIZE + 1][72 * brushlocs.get(
+				MAX_BRUSH_SIZE).size()];
+		for (int i = 0; i < ret.length; i++)
+			for (int j = 0; j < ret[i].length; j++)
+				ret[i][j] = 0;
+
+		for (int i = 0; i < brushlocs.size(); i++)
+			for (int j = 0; j < brushlocs.get(i).size(); j++) {
+				Tuple3i anchor = brushlocs.get(i).get(j);
+				Point3f fanchor = new Point3f(APFinalData.BOXSIZE * anchor.x,
+						APFinalData.BOXSIZE * anchor.y, APFinalData.BOXSIZE
+								* anchor.z);
+				System.arraycopy(new float[] { fanchor.x, fanchor.y, fanchor.z,
+						fanchor.x + APFinalData.BOXSIZE, fanchor.y, fanchor.z,
+						fanchor.x + APFinalData.BOXSIZE,
+						fanchor.y + APFinalData.BOXSIZE, fanchor.z, fanchor.x,
+						fanchor.y + APFinalData.BOXSIZE, fanchor.z, fanchor.x,
+						fanchor.y, fanchor.z, fanchor.x + APFinalData.BOXSIZE,
+						fanchor.y, fanchor.z, fanchor.x + APFinalData.BOXSIZE,
+						fanchor.y, fanchor.z + APFinalData.BOXSIZE, fanchor.x,
+						fanchor.y, fanchor.z + APFinalData.BOXSIZE,
+						fanchor.x + APFinalData.BOXSIZE, fanchor.y, fanchor.z,
+						fanchor.x + APFinalData.BOXSIZE, fanchor.y,
+						fanchor.z + APFinalData.BOXSIZE,
+						fanchor.x + APFinalData.BOXSIZE,
+						fanchor.y + APFinalData.BOXSIZE,
+						fanchor.z + APFinalData.BOXSIZE,
+						fanchor.x + APFinalData.BOXSIZE,
+						fanchor.y + APFinalData.BOXSIZE, fanchor.z, fanchor.x,
+						fanchor.y, fanchor.z, fanchor.x, fanchor.y,
+						fanchor.z + APFinalData.BOXSIZE, fanchor.x,
+						fanchor.y + APFinalData.BOXSIZE,
+						fanchor.z + APFinalData.BOXSIZE, fanchor.x,
+						fanchor.y + APFinalData.BOXSIZE, fanchor.z, fanchor.x,
+						fanchor.y + APFinalData.BOXSIZE, fanchor.z,
+						fanchor.x + APFinalData.BOXSIZE,
+						fanchor.y + APFinalData.BOXSIZE, fanchor.z,
+						fanchor.x + APFinalData.BOXSIZE,
+						fanchor.y + APFinalData.BOXSIZE,
+						fanchor.z + APFinalData.BOXSIZE, fanchor.x,
+						fanchor.y + APFinalData.BOXSIZE,
+						fanchor.z + APFinalData.BOXSIZE, fanchor.x, fanchor.y,
+						fanchor.z + APFinalData.BOXSIZE,
+						fanchor.x + APFinalData.BOXSIZE, fanchor.y,
+						fanchor.z + APFinalData.BOXSIZE,
+						fanchor.x + APFinalData.BOXSIZE,
+						fanchor.y + APFinalData.BOXSIZE,
+						fanchor.z + APFinalData.BOXSIZE, fanchor.x,
+						fanchor.y + APFinalData.BOXSIZE,
+						fanchor.z + APFinalData.BOXSIZE }, 0, ret[i], j * 72,
+						72);
+			}
+
+		return ret;
+
 	}
 
 	/**
@@ -1054,7 +1128,7 @@ public class APFinalData extends APObject {
 	 * 
 	 */
 
-	public static final JComboBox elementChooser = new JComboBox(
+	public static final JComboBox<String> elementChooser = new JComboBox<String>(
 			APMaterialsList.getMaterialList());
 
 	/**
@@ -1281,5 +1355,24 @@ public class APFinalData extends APObject {
 	 */
 
 	public static final APMaterial DEFAULT_MAT = APMaterial.WATER;
+
+	/**
+	 * Order in which
+	 * {@link com.prodp.apsim.APArrayUtils#computeAroundIndices(APProcess, int)}
+	 * loop should go in.
+	 */
+
+	public static final Point3i[] indexorder = new Point3i[] {
+			new Point3i(-1, -1, -1), new Point3i(-1, -1, 0),
+			new Point3i(-1, -1, 1), new Point3i(-1, 0, -1),
+			new Point3i(-1, 0, 0), new Point3i(-1, 0, 1),
+			new Point3i(-1, 1, -1), new Point3i(-1, 1, 0),
+			new Point3i(-1, 1, 1), new Point3i(0, -1, -1),
+			new Point3i(0, -1, 0), new Point3i(0, -1, 1),
+			new Point3i(0, 0, -1), new Point3i(0, 0, 1), new Point3i(0, 1, -1),
+			new Point3i(0, 1, 0), new Point3i(0, 1, 1), new Point3i(1, -1, -1),
+			new Point3i(1, -1, 0), new Point3i(1, -1, 1),
+			new Point3i(1, 0, -1), new Point3i(1, 0, 0), new Point3i(1, 0, 1),
+			new Point3i(1, 1, -1), new Point3i(1, 1, 0), new Point3i(1, 1, 1) };
 
 }

@@ -107,8 +107,8 @@ public class APGUI extends JFrame implements ActionListener {
 		APFinalData.top.putClientProperty(Options.HEADER_STYLE_KEY,
 				HeaderStyle.SINGLE);
 
-		APFinalData.Tools.add(APFinalData.Spray);
-		APFinalData.Tools.add(APFinalData.Vacuum);
+		APFinalData.Tools.add(APFinalData.SprayVacuum);
+		APFinalData.Tools.add(APFinalData.Wind);
 
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(550, 400));

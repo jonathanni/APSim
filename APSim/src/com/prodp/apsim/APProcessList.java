@@ -76,6 +76,7 @@ public class APProcessList extends ArrayList<APProcess> {
 
 	public synchronized void changeCurrentProcessByIndex(int i) {
 		current = (byte) i;
+		APProcessHandler.updateProcess();
 	}
 
 	/**

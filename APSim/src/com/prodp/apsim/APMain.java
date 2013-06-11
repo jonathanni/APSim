@@ -117,7 +117,7 @@ public final class APMain extends APObject implements Runnable {
 			} catch (UnsupportedLookAndFeelException e) {
 				e.printStackTrace();
 			}
-			
+
 			System.out.println("Mac User!");
 		}
 
@@ -292,7 +292,7 @@ public final class APMain extends APObject implements Runnable {
 	@Override
 	public void run() {
 
-		new Timer().schedule(new APFPSUpdater(), 0, 500);
+		new Timer().schedule(new APFPSUpdater(), 0, 250);
 
 		while (APProcessHandler.getIsRunning()) {
 
@@ -337,6 +337,8 @@ public final class APMain extends APObject implements Runnable {
 			// IMPORTANT: This is Sensor
 			if (APProcessHandler.isLeftMouseDown)
 				APProcessHandler.countUp();
+			if (APProcessHandler.isRightMouseDown)
+				APProcessHandler.countDown();
 
 			if (!APProcessHandler.getCanvas().hasFocus())
 				APProcessHandler.getCanvas().requestFocusInWindow();
