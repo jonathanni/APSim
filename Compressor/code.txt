@@ -1,0 +1,128 @@
+private static final int TOL = 23;
+    private static final int TOL_LINE = 19;
+
+    protected static CTriple[] encodeLNE(byte[] stream, int width, int height) {
+        ArrayList<CTriple> log = new ArrayList<CTriple>();
+
+        float islope = -99999;
+        float accum = stream[0];
+        ArrayList<CTriple> indexlist = new ArrayList<CTriple>();
+        boolean[] visited = new boolean[width * height];
+        int i = 0, j = 0;
+        boolean first = true;
+
+        main: while (i < stream.length - 1) {
+
+            if (visited[i]) {
+                while (i != stream.length - 1 && visited[i])
+                    i++;
+                accum = stream[i] & 0xFF;
+                islope = -99999;
+                j = 1;
+                first = true;
+                continue main;
+            }
+
+            if (first
+                    || i == stream.length - 2
+                    || visited[i + 1]
+                    || Math.abs(islope + accum - (stream[i + 1] & 0xFF)) > TOL
+                    || stddev(stream, indexlist.get(indexlist.size() - 1).len,
+                            j, indexlist.get(indexlist.size() - 1).height,
+                            (int) accum) > TOL_LINE) {
+
+                if (visited[i + 1])
+                    visited[i] = true;
+
+                islope = (stream[i + 1] & 0xFF) - (stream[i] & 0xFF);
+
+                if (first) {
+                    first = false;
+                    indexlist.add(new CTriple(i, stream[i] & 0xFF, 1));
+                    j = 1;
+                    visited[i] = true;
+                    i++;
+                    continue main;
+                }
+
+                int k = 1;
+                while (k <= Byte.MAX_VALUE
+                        && j <= width
+                        && indexlist.get(indexlist.size() - 1).len + k * width
+                                + j < width * height
+                        && stddev(stream,
+                                indexlist.get(indexlist.size() - 1).len + k
+                                        * width, j,
+                                indexlist.get(indexlist.size() - 1).height,
+                                (int) accum) < TOL_LINE)
+                    k++;
+
+                CTriple old = new CTriple(indexlist.get(indexlist.size() - 1));
+                old.repeat = k;
+                if (k * j > 1) {
+                    indexlist.set(indexlist.size() - 1, old);
+                    for (int l = 0; l < k; l++)
+                        Arrays.fill(visited,
+                                indexlist.get(indexlist.size() - 1).len + l
+                                        * width,
+                                indexlist.get(indexlist.size() - 1).len + l
+                                        * width + j, true);
+                } else {
+                    Arrays.fill(visited,
+                            indexlist.get(indexlist.size() - 1).len,
+                            indexlist.get(indexlist.size() - 1).len + j, true);
+                }
+
+                indexlist.add(new CTriple(i, stream[i] & 0xFF, 1));
+                j = 1;
+            } else {
+                accum += islope;
+                accum = (accum * 2 + (stream[i + 1] & 0xFF)) / 3.0f;
+                j++;
+            }
+
+            i++;
+        }
+
+        indexlist.add(new CTriple(stream.length - 1,
+                stream[stream.length - 1] & 0xFF, (byte) 1));// tail
+
+        Arrays.fill(visited, false);
+
+        for (i = 0; i < indexlist.size() - 1; i++) {
+            CTriple copy = new CTriple(indexlist.get(i));
+            if (visited[indexlist.get(i).len + 1]) {
+                copy.len = 1;
+                log.add(copy);
+                visited[indexlist.get(i).len] = true;
+                continue;
+            }
+
+            int length = indexlist.get(i + 1).len - indexlist.get(i).len;
+            float init = indexlist.get(i).height;
+
+            for (int l = 0; l < indexlist.get(i).repeat; l++)
+                Arrays.fill(visited, indexlist.get(i).len + l * width,
+                        indexlist.get(i + 1).len + l * width, true);
+
+            if (length > Short.MAX_VALUE) {
+                float slope = (indexlist.get(i + 1).height - indexlist.get(i).height)
+                        / (length / 1.0f);
+                while (length > Short.MAX_VALUE) {
+                    length -= Short.MAX_VALUE;
+                    log.add(new CTriple(Short.MAX_VALUE, (int) init,
+                            copy.repeat));
+                    init += slope * Short.MAX_VALUE;
+                }
+            }
+
+            log.add(new CTriple(length, (int) init, copy.repeat));
+        }
+
+        log.add(new CTriple(1, indexlist.get(indexlist.size() - 1).height,
+                (byte) 1));
+
+        CTriple[] ret = new CTriple[log.size()];
+        log.toArray(ret);
+        return ret;
+    }

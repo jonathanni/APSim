@@ -1,0 +1,132 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red127\green0\blue85;\red0\green0\blue0;\red0\green0\blue192;\red63\green127\blue95;}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl240\slmult1\cf1\lang9\b\f0\fs20 private\cf2\b0  \cf1\b static\cf2\b0  \cf1\b final\cf2\b0  \cf1\b int\cf2\b0  \cf3\i TOL\cf2\i0  = 23;\cf0\par
+\cf2\tab\cf1\b private\cf2\b0  \cf1\b static\cf2\b0  \cf1\b final\cf2\b0  \cf1\b int\cf2\b0  \cf3\i TOL_LINE\cf2\i0  = 19;\cf0\par
+\par
+\cf2\tab\cf1\b protected\cf2\b0  \cf1\b static\cf2\b0  CTriple[] encodeLNE(\cf1\b byte\cf2\b0 [] stream, \cf1\b int\cf2\b0  width, \cf1\b int\cf2\b0  height) \{\cf0\par
+\cf2\tab\tab ArrayList<CTriple> log = \cf1\b new\cf2\b0  ArrayList<CTriple>();\cf0\par
+\par
+\cf2\tab\tab\cf1\b float\cf2\b0  islope = -99999;\cf0\par
+\cf2\tab\tab\cf1\b float\cf2\b0  accum = stream[0];\cf0\par
+\cf2\tab\tab ArrayList<CTriple> indexlist = \cf1\b new\cf2\b0  ArrayList<CTriple>();\cf0\par
+\cf2\tab\tab\cf1\b boolean\cf2\b0 [] visited = \cf1\b new\cf2\b0  \cf1\b boolean\cf2\b0 [width * height];\cf0\par
+\cf2\tab\tab\cf1\b int\cf2\b0  i = 0, j = 0;\cf0\par
+\cf2\tab\tab\cf1\b boolean\cf2\b0  first = \cf1\b true\cf2\b0 ;\cf0\par
+\par
+\cf2\tab\tab main: \cf1\b while\cf2\b0  (i < stream.\cf3 length\cf2  - 1) \{\cf0\par
+\par
+\cf2\tab\tab\tab\cf1\b if\cf2\b0  (visited[i]) \{\cf0\par
+\cf2\tab\tab\tab\tab\cf1\b while\cf2\b0  (i != stream.\cf3 length\cf2  - 1 && visited[i])\cf0\par
+\cf2\tab\tab\tab\tab\tab i++;\cf0\par
+\cf2\tab\tab\tab\tab accum = stream[i] & 0xFF;\cf0\par
+\cf2\tab\tab\tab\tab islope = -99999;\cf0\par
+\cf2\tab\tab\tab\tab j = 1;\cf0\par
+\cf2\tab\tab\tab\tab first = \cf1\b true\cf2\b0 ;\cf0\par
+\cf2\tab\tab\tab\tab\cf1\b continue\cf2\b0  main;\cf0\par
+\cf2\tab\tab\tab\}\cf0\par
+\par
+\cf2\tab\tab\tab\cf1\b if\cf2\b0  (first\cf0\par
+\cf2\tab\tab\tab\tab\tab || i == stream.\cf3 length\cf2  - 2\cf0\par
+\cf2\tab\tab\tab\tab\tab || visited[i + 1]\cf0\par
+\cf2\tab\tab\tab\tab\tab || Math.\i abs\i0 (islope + accum - (stream[i + 1] & 0xFF)) > \cf3\i TOL\cf0\i0\par
+\cf2\tab\tab\tab\tab\tab || \i stddev\i0 (stream, indexlist.get(indexlist.size() - 1).\cf3 len\cf2 ,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab j, indexlist.get(indexlist.size() - 1).\cf3 height\cf2 ,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab (\cf1\b int\cf2\b0 ) accum) > \cf3\i TOL_LINE\cf2\i0 ) \{\cf0\par
+\par
+\cf2\tab\tab\tab\tab\cf1\b if\cf2\b0  (visited[i + 1])\cf0\par
+\cf2\tab\tab\tab\tab\tab visited[i] = \cf1\b true\cf2\b0 ;\cf0\par
+\par
+\cf2\tab\tab\tab\tab islope = (stream[i + 1] & 0xFF) - (stream[i] & 0xFF);\cf0\par
+\par
+\cf2\tab\tab\tab\tab\cf1\b if\cf2\b0  (first) \{\cf0\par
+\cf2\tab\tab\tab\tab\tab first = \cf1\b false\cf2\b0 ;\cf0\par
+\cf2\tab\tab\tab\tab\tab indexlist.add(\cf1\b new\cf2\b0  CTriple(i, stream[i] & 0xFF, 1));\cf0\par
+\cf2\tab\tab\tab\tab\tab j = 1;\cf0\par
+\cf2\tab\tab\tab\tab\tab visited[i] = \cf1\b true\cf2\b0 ;\cf0\par
+\cf2\tab\tab\tab\tab\tab i++;\cf0\par
+\cf2\tab\tab\tab\tab\tab\cf1\b continue\cf2\b0  main;\cf0\par
+\cf2\tab\tab\tab\tab\}\cf0\par
+\par
+\cf2\tab\tab\tab\tab\cf1\b int\cf2\b0  k = 1;\cf0\par
+\cf2\tab\tab\tab\tab\cf1\b while\cf2\b0  (k <= Byte.\cf3\i MAX_VALUE\cf0\i0\par
+\cf2\tab\tab\tab\tab\tab\tab && j <= width\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab && indexlist.get(indexlist.size() - 1).\cf3 len\cf2  + k * width\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab\tab + j < width * height\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab && \i stddev\i0 (stream,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab\tab indexlist.get(indexlist.size() - 1).\cf3 len\cf2  + k\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab\tab\tab\tab * width, j,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab\tab indexlist.get(indexlist.size() - 1).\cf3 height\cf2 ,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab\tab (\cf1\b int\cf2\b0 ) accum) < \cf3\i TOL_LINE\cf2\i0 )\cf0\par
+\cf2\tab\tab\tab\tab\tab k++;\cf0\par
+\par
+\cf2\tab\tab\tab\tab CTriple old = \cf1\b new\cf2\b0  CTriple(indexlist.get(indexlist.size() - 1));\cf0\par
+\cf2\tab\tab\tab\tab old.\cf3 repeat\cf2  = k;\cf0\par
+\cf2\tab\tab\tab\tab\cf1\b if\cf2\b0  (k * j > 1) \{\cf0\par
+\cf2\tab\tab\tab\tab\tab indexlist.set(indexlist.size() - 1, old);\cf0\par
+\cf2\tab\tab\tab\tab\tab\cf1\b for\cf2\b0  (\cf1\b int\cf2\b0  l = 0; l < k; l++)\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab Arrays.\i fill\i0 (visited,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab\tab indexlist.get(indexlist.size() - 1).\cf3 len\cf2  + l\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab\tab\tab\tab * width,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab\tab indexlist.get(indexlist.size() - 1).\cf3 len\cf2  + l\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab\tab\tab\tab * width + j, \cf1\b true\cf2\b0 );\cf0\par
+\cf2\tab\tab\tab\tab\} \cf1\b else\cf2\b0  \{\cf0\par
+\cf2\tab\tab\tab\tab\tab Arrays.\i fill\i0 (visited,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab indexlist.get(indexlist.size() - 1).\cf3 len\cf2 ,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab indexlist.get(indexlist.size() - 1).\cf3 len\cf2  + j, \cf1\b true\cf2\b0 );\cf0\par
+\cf2\tab\tab\tab\tab\}\cf0\par
+\par
+\cf2\tab\tab\tab\tab indexlist.add(\cf1\b new\cf2\b0  CTriple(i, stream[i] & 0xFF, 1));\cf0\par
+\cf2\tab\tab\tab\tab j = 1;\cf0\par
+\cf2\tab\tab\tab\} \cf1\b else\cf2\b0  \{\cf0\par
+\cf2\tab\tab\tab\tab accum += islope;\cf0\par
+\cf2\tab\tab\tab\tab accum = (accum * 2 + (stream[i + 1] & 0xFF)) / 3.0f;\cf0\par
+\cf2\tab\tab\tab\tab j++;\cf0\par
+\cf2\tab\tab\tab\}\cf0\par
+\par
+\cf2\tab\tab\tab i++;\cf0\par
+\cf2\tab\tab\}\cf0\par
+\par
+\cf2\tab\tab indexlist.add(\cf1\b new\cf2\b0  CTriple(stream.\cf3 length\cf2  - 1,\cf0\par
+\cf2\tab\tab\tab\tab stream[stream.\cf3 length\cf2  - 1] & 0xFF, (\cf1\b byte\cf2\b0 ) 1));\cf4 // tail\cf0\par
+\par
+\cf2\tab\tab Arrays.\i fill\i0 (visited, \cf1\b false\cf2\b0 );\cf0\par
+\par
+\cf2\tab\tab\cf1\b for\cf2\b0  (i = 0; i < indexlist.size() - 1; i++) \{\cf0\par
+\cf2\tab\tab\tab CTriple copy = \cf1\b new\cf2\b0  CTriple(indexlist.get(i));\cf0\par
+\cf2\tab\tab\tab\cf1\b if\cf2\b0  (visited[indexlist.get(i).\cf3 len\cf2  + 1]) \{\cf0\par
+\cf2\tab\tab\tab\tab copy.\cf3 len\cf2  = 1;\cf0\par
+\cf2\tab\tab\tab\tab log.add(copy);\cf0\par
+\cf2\tab\tab\tab\tab visited[indexlist.get(i).\cf3 len\cf2 ] = \cf1\b true\cf2\b0 ;\cf0\par
+\cf2\tab\tab\tab\tab\cf1\b continue\cf2\b0 ;\cf0\par
+\cf2\tab\tab\tab\}\cf0\par
+\par
+\cf2\tab\tab\tab\cf1\b int\cf2\b0  length = indexlist.get(i + 1).\cf3 len\cf2  - indexlist.get(i).\cf3 len\cf2 ;\cf0\par
+\cf2\tab\tab\tab\cf1\b float\cf2\b0  init = indexlist.get(i).\cf3 height\cf2 ;\cf0\par
+\par
+\cf2\tab\tab\tab\cf1\b for\cf2\b0  (\cf1\b int\cf2\b0  l = 0; l < indexlist.get(i).\cf3 repeat\cf2 ; l++)\cf0\par
+\cf2\tab\tab\tab\tab Arrays.\i fill\i0 (visited, indexlist.get(i).\cf3 len\cf2  + l * width,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab indexlist.get(i + 1).\cf3 len\cf2  + l * width, \cf1\b true\cf2\b0 );\cf0\par
+\par
+\cf2\tab\tab\tab\cf1\b if\cf2\b0  (length > Short.\cf3\i MAX_VALUE\cf2\i0 ) \{\cf0\par
+\cf2\tab\tab\tab\tab\cf1\b float\cf2\b0  slope = (indexlist.get(i + 1).\cf3 height\cf2  - indexlist.get(i).\cf3 height\cf2 )\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab / (length / 1.0f);\cf0\par
+\cf2\tab\tab\tab\tab\cf1\b while\cf2\b0  (length > Short.\cf3\i MAX_VALUE\cf2\i0 ) \{\cf0\par
+\cf2\tab\tab\tab\tab\tab length -= Short.\cf3\i MAX_VALUE\cf2\i0 ;\cf0\par
+\cf2\tab\tab\tab\tab\tab log.add(\cf1\b new\cf2\b0  CTriple(Short.\cf3\i MAX_VALUE\cf2\i0 , (\cf1\b int\cf2\b0 ) init,\cf0\par
+\cf2\tab\tab\tab\tab\tab\tab\tab copy.\cf3 repeat\cf2 ));\cf0\par
+\cf2\tab\tab\tab\tab\tab init += slope * Short.\cf3\i MAX_VALUE\cf2\i0 ;\cf0\par
+\cf2\tab\tab\tab\tab\}\cf0\par
+\cf2\tab\tab\tab\}\cf0\par
+\par
+\cf2\tab\tab\tab log.add(\cf1\b new\cf2\b0  CTriple(length, (\cf1\b int\cf2\b0 ) init, copy.\cf3 repeat\cf2 ));\cf0\par
+\cf2\tab\tab\}\cf0\par
+\par
+\cf2\tab\tab log.add(\cf1\b new\cf2\b0  CTriple(1, indexlist.get(indexlist.size() - 1).\cf3 height\cf2 ,\cf0\par
+\cf2\tab\tab\tab\tab (\cf1\b byte\cf2\b0 ) 1));\cf0\par
+\par
+\cf2\tab\tab CTriple[] ret = \cf1\b new\cf2\b0  CTriple[log.size()];\cf0\par
+\cf2\tab\tab log.toArray(ret);\cf0\par
+\cf2\tab\tab\cf1\b return\cf2\b0  ret;\cf0\par
+\cf2\tab\}\cf0\f1\fs22\par
+}
+ 

@@ -1,0 +1,43 @@
+protected static Color[] decodeLNE(CTriple[] encode, int width, int height,
+            int index) {
+        Color[] colors = new Color[width * height];
+
+        ArrayList<Integer> indices = new ArrayList<Integer>();
+
+        for (int i = 0; i < colors.length; i++)
+            colors[i] = new Color(0, 0, 0);
+
+        boolean[] visited = new boolean[width * height];
+        int indexcum = 0;
+
+        for (int i = 0; i < encode.length - 1; i++) {
+            if (visited[indexcum]) {
+                while (indexcum < width * height && visited[indexcum])
+                    indexcum++;
+            }
+
+            int index1 = indexcum;
+            int index2 = indexcum + encode[i].len;
+
+            float accum = encode[i].height;
+            float slope = (encode[i + 1].height - accum)
+                    / ((index2 - index1) / 1.0f);
+
+            for (int j = index1; j < index2; j++) {
+                for (int k = 0; k < encode[i].repeat; k++) {
+                    int num = constrain(0, 255, (int) Math.round(accum));
+                    colors[j + k * width] = new Color(index == 0 ? num : 0,
+                            index == 1 ? num : 0, index == 2 ? num : 0);
+                    visited[j + k * width] = true;
+                }
+                accum += slope;
+            }
+            indices.add(indexcum);
+            indexcum += encode[i].len;
+        }
+
+        colors[colors.length - 1] = new Color(constrain(0, 255,
+                encode[encode.length - 1].height));
+
+        return colors;
+    }
