@@ -1,37 +1,3 @@
-/*
- * 
- * 
- * 
- * 
- * 
- * Hello everyone, I will be showing about 20 minutes of programming time,
- * a speed-coding video.
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- */
-
 package com.prodp.apsim;
 
 import java.awt.AWTException;
@@ -122,7 +88,8 @@ public final class APMain extends APObject implements Runnable {
 		}
 
 		new JFileChooser(); // Make sure the JFileChooser doesn't throw an
-							// exception
+							// exception: For some reason this is a workaround
+							// for an old bug
 
 		new APProcessHandler().init();
 
@@ -200,6 +167,11 @@ public final class APMain extends APObject implements Runnable {
 	}
 
 	private void doBrushChange() {
+		if (APProcessHandler.keys[9] && APProcessHandler.keys[14]) {
+			APProcessHandler.keys[14] = false; // gets stuck otherwise
+			APFinalData.elementop.setVisible(true);
+			return;
+		}
 		if (APProcessHandler.keys[9] && !APProcessHandler.prevaction[3]) {
 			APProcessHandler.incBrushSize();
 			APProcessHandler.prevaction[3] = true;
@@ -336,9 +308,9 @@ public final class APMain extends APObject implements Runnable {
 
 			// IMPORTANT: This is Sensor
 			if (APProcessHandler.isLeftMouseDown)
-				APProcessHandler.countUp();
+				processLMB(APProcessHandler.getTool());
 			if (APProcessHandler.isRightMouseDown)
-				APProcessHandler.countDown();
+				processRMB(APProcessHandler.getTool());
 
 			if (!APProcessHandler.getCanvas().hasFocus())
 				APProcessHandler.getCanvas().requestFocusInWindow();
@@ -361,6 +333,49 @@ public final class APMain extends APObject implements Runnable {
 	}
 
 	// Taken from http://www.java.net/node/647363
+
+	/**
+	 * 
+	 * Process left mouse button actions.
+	 * 
+	 * @param tool
+	 *            the current tool
+	 */
+
+	private void processLMB(int tool) {
+
+		switch (tool) {
+		case APFinalData.TOOL_SPRAYVAC:
+			APProcessHandler.countUp();
+			break;
+		case APFinalData.TOOL_WIND:
+			APProcessHandler.addWind(true);
+			break;
+		default:
+			return;
+		}
+	}
+
+	/**
+	 * 
+	 * Process right mouse button actions.
+	 * 
+	 * @param tool
+	 *            the current tool
+	 */
+
+	private void processRMB(int tool) {
+		switch (tool) {
+		case APFinalData.TOOL_SPRAYVAC:
+			APProcessHandler.countDown();
+			break;
+		case APFinalData.TOOL_WIND:
+			APProcessHandler.addWind(false);
+			break;
+		default:
+			return;
+		}
+	}
 
 	/**
 	 * 

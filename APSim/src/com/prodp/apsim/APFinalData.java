@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.MemoryImageSource;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +41,8 @@ import javax.vecmath.Color3f;
 import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
 import javax.vecmath.Tuple3i;
+
+import com.sun.j3d.utils.image.TextureLoader;
 
 /**
  * 
@@ -679,9 +682,22 @@ public class APFinalData extends APObject {
 		return VERSION;
 	}
 
+	/**
+	 * Texture image loader for the block textures.
+	 */
+	
+	public static TextureLoader blocktx;
+
 	static {
 		brushlocs = createBrushLocs(MAX_BRUSH_SIZE);
 		spherecoords = getSphereCoords();
+
+		try {
+			blocktx = new TextureLoader(ImageIO.read(new File(
+					"../texture/texture.png")));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static final float[][] getSphereCoords() {
@@ -1330,7 +1346,7 @@ public class APFinalData extends APObject {
 	 * 
 	 */
 
-	public static final int FORMAT_VERSION = 1;
+	public static final int FORMAT_VERSION = 2;
 
 	/**
 	 * 
@@ -1374,5 +1390,61 @@ public class APFinalData extends APObject {
 			new Point3i(1, -1, 0), new Point3i(1, -1, 1),
 			new Point3i(1, 0, -1), new Point3i(1, 0, 0), new Point3i(1, 0, 1),
 			new Point3i(1, 1, -1), new Point3i(1, 1, 0), new Point3i(1, 1, 1) };
+
+	/**
+	 * Distance threshold for pressure manipulation. Any pressure point past
+	 * this distance is ignored.
+	 */
+
+	public static final float DIST_THRESHOLD = 64;
+
+	/**
+	 * Threshold to extinguish a pressure point. If the pressure value is less
+	 * than this then it is destroyed.
+	 */
+
+	public static final float EXTINGUISH_THRESHOLD = 3;
+
+	/**
+	 * Natural decay rate for pressure in this world.
+	 */
+
+	public static final float PRESSURE_DECAY_RATIO = .75f;
+
+	/**
+	 * Amount the pressure tool adds to the pressure.
+	 */
+
+	public static final float PRESSURE_ADD = 6;
+
+	/**
+	 * Spray/Vaccuum tool flag.
+	 */
+
+	public static final int TOOL_SPRAYVAC = 0;
+
+	/**
+	 * Wind tool flag.
+	 */
+
+	public static final int TOOL_WIND = 1;
+
+	/**
+	 * Amount to decrease the persistence by.
+	 */
+
+	public static final float PERSISTENCE_ADD = 0.95f;
+
+	/**
+	 * Pressure cannot exceed this value.
+	 */
+
+	public static final int PRESSURE_CAP = 64;
+
+	/**
+	 * Amount of pressure coordinates.
+	 */
+
+	public static final int PRESSURE_COUNT = 128;
 
 }

@@ -56,7 +56,7 @@ public enum APMaterial {
 			(byte) 0, (byte) 127, (byte) 200, (byte) 0, (byte) 0, (byte) 127,
 			(byte) 200, (byte) 0, (byte) 0, (byte) 187, (byte) 200, (byte) 0,
 			(byte) 0, (byte) 63, (byte) 200, (byte) 0, (byte) 0, (byte) 255,
-			(byte) 200 }, false, true, 0.95f, (short) 2, 2, "Water"),
+			(byte) 200 }, false, true, 1f, (short) 2, 2, "Water"),
 
 	/**
 	 * Lava.
@@ -129,6 +129,7 @@ public enum APMaterial {
 	private int density;
 	private short ID;
 	private String name;
+	private String texturePath;
 
 	/**
 	 * Necessary default construct for builders.

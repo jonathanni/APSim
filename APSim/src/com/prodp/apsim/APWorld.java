@@ -43,14 +43,15 @@ public class APWorld extends APProcessableItem {
 	 * 
 	 * Creates a new world based on the path.
 	 * 
-	 * @param p the path
+	 * @param p
+	 *            the path
 	 */
-	
+
 	public APWorld(String p) {
 		init();
 		setPath(p);
 	}
-	
+
 	/**
 	 * 
 	 * Creates a new untitled world.
@@ -88,7 +89,7 @@ public class APWorld extends APProcessableItem {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		out.writeInt(APFinalData.FORMAT_VERSION);
 
 		out.writeInt(APProcessHandler.getBrushSize());
@@ -121,7 +122,18 @@ public class APWorld extends APProcessableItem {
 			out.writeFloat(process.dVelocity[i].y);
 			out.writeFloat(process.dVelocity[i].z);
 
-			bar.setValue((int) (i / APFinalData.LIMIT * 100));
+			bar.setValue((int) (i / APFinalData.LIMIT * 50));
+		}
+
+		for (int i = 0; i < APFinalData.LIMIT; i++) {
+
+			out.writeInt(process.pressures[i].x);
+			out.writeInt(process.pressures[i].y);
+			out.writeInt(process.pressures[i].z);
+			out.writeFloat(process.pressures[i].getValue());
+			out.writeFloat(process.pressures[i].getPersistence());
+
+			bar.setValue(50 + (int) (i / APFinalData.LIMIT * 50));
 		}
 
 		loader.setVisible(false);
@@ -140,6 +152,16 @@ public class APWorld extends APProcessableItem {
 
 		in = new ObjectInputStream(new GZIPInputStream(new FileInputStream(
 				getPath())));
+
+		int version = in.readInt();
+
+		if (version != APFinalData.FORMAT_VERSION) {
+			APMain.debug("Error: Save file versions do not match, expected version "
+					+ APFinalData.FORMAT_VERSION
+					+ " but got version "
+					+ APFinalData.FORMAT_VERSION);
+			return;
+		}
 
 		APProcessHandler.setBrushSize(in.readInt());
 
@@ -174,7 +196,18 @@ public class APWorld extends APProcessableItem {
 			process.dVelocity[i].y = in.readFloat();
 			process.dVelocity[i].z = in.readFloat();
 
-			bar.setValue((int) (i / APFinalData.LIMIT * 100));
+			bar.setValue((int) (i / APFinalData.LIMIT * 50));
+		}
+
+		for (int i = 0; i < APFinalData.LIMIT; i++) {
+
+			process.pressures[i].x = in.readInt();
+			process.pressures[i].y = in.readInt();
+			process.pressures[i].z = in.readInt();
+			process.pressures[i].setValue(in.readFloat());
+			process.pressures[i].setPersistence(in.readFloat());
+
+			bar.setValue(50 + (int) (i / APFinalData.LIMIT * 50));
 		}
 
 		loader.setVisible(false);

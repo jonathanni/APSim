@@ -1,5 +1,7 @@
 package com.prodp.apsim;
 
+import java.util.Arrays;
+
 import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
 import javax.vecmath.Vector3f;
@@ -9,7 +11,7 @@ import javax.vecmath.Vector3f;
 /**
  * 
  * @author Jonathan
- * @version 0.2
+ * @version 0.3
  * @since 6-10-2012 (Javadoc Created)
  * 
  */
@@ -65,6 +67,24 @@ public class APArrayUtils extends APObject {
 	public final static int findEmptySpace(short[] a) {
 		for (int i = 0; i < APFinalData.LIMIT; i++)
 			if (a[i] == 0)
+				return i;
+		return -1;
+	}
+
+	/**
+	 * 
+	 * Finds the first occurence of an empty space in any array. Emptiness is
+	 * defined as having an occurence of null.
+	 * 
+	 * @param a
+	 *            the array to be checked.
+	 * 
+	 * @return i the index of the empty space, or -1 if there is no empty space.
+	 */
+
+	public final static int findEmptySpace(Object[] a) {
+		for (int i = 0; i < APFinalData.LIMIT; i++)
+			if (a[i] == null)
 				return i;
 		return -1;
 	}
@@ -464,6 +484,7 @@ public class APArrayUtils extends APObject {
 	 * @deprecated
 	 */
 
+	@SuppressWarnings("unused")
 	private static final void performLiquidFlow(final APProcess process,
 			final int index) {
 		return;
@@ -499,7 +520,7 @@ public class APArrayUtils extends APObject {
 
 	// TODO combine!
 
-	public static final void performReactions(final APProcess process,
+	private static final void performReactions(final APProcess process,
 			final int i) {
 
 		for (int j : indices) {
@@ -544,7 +565,7 @@ public class APArrayUtils extends APObject {
 	 */
 
 	// TODO Make this faster!!!
-	public static void exchangeDensities(final APProcess process, int index) {
+	private static void exchangeDensities(final APProcess process, int index) {
 		int tempind = 0;
 
 		if (process.status[index] != 0
@@ -588,24 +609,22 @@ public class APArrayUtils extends APObject {
 		 * Brute force search!! (Not good)
 		 */
 
-		for (Point3i order : APFinalData.indexorder) {
-			Point3i loccoord = new Point3i(order);
-			loccoord.add(coordinate);
-			Integer putindex = process.reversecoordsort.get(loccoord);
+		for (int i = -1; i <= 1; i++)
+			for (int k = -1; k <= 1; k++)
+				for (int l = -1; l <= 1; l++) {
 
-			indices[(order.x + 1) * 9 + (order.y + 1) * 3 + (order.z + 1)] = (putindex != null ? putindex
-					: -1);
-		}
-		/*
-		 * for (int i = -1; i <= 1; i++) for (int k = -1; k <= 1; k++) for (int
-		 * l = -1; l <= 1; l++) { Point3i loccoord = new Point3i(coordinate.x +
-		 * i, coordinate.y + k, coordinate.z + l); Integer putindex;
-		 * 
-		 * putindex = process.reversecoordsort.get(loccoord);
-		 * 
-		 * if (putindex != null) indices[(i + 1) * 9 + (k + 1) * 3 + (l + 1)] =
-		 * putindex; else indices[(i + 1) * 9 + (k + 1) * 3 + (l + 1)] = -1; }
-		 */
+					Point3i loccoord = new Point3i(coordinate.x + i,
+							coordinate.y + k, coordinate.z + l);
+					Integer putindex;
+
+					putindex = process.reversecoordsort.get(loccoord);
+
+					if (putindex != null)
+						indices[(i + 1) * 9 + (k + 1) * 3 + (l + 1)] = putindex;
+					else
+						indices[(i + 1) * 9 + (k + 1) * 3 + (l + 1)] = -1;
+				}
+
 		indices[13] = -1; // center block is own block
 	}
 
@@ -628,9 +647,6 @@ public class APArrayUtils extends APObject {
 
 	public static void doReqCheckLoopActions(final APProcess process, int i) {
 
-		// Do All Collisions
-		performCollisions(process, i);
-
 		// Perform all the reactions and exchange the block's position based on
 		// density (e.g. oil floats on top of water)
 		performReactions(process, i);
@@ -638,6 +654,12 @@ public class APArrayUtils extends APObject {
 
 		// Perform adhesion/cohesion on particles
 		performCoAdhesion(process, i);
+
+		// Perform pressure velocity manipulation
+		performPressure(process, i);
+
+		// Do All Collisions
+		performCollisions(process, i);
 
 		// ^ ^ ^ Very Low Time
 
@@ -695,6 +717,191 @@ public class APArrayUtils extends APObject {
 				computeAroundIndices(process, rec);
 		}
 
+	}
+
+	private static float dist(Point3i a, Point3i b) {
+		return (float) Math.sqrt(Math.pow(b.x - a.x, 2)
+				+ Math.pow(b.y - a.y, 2) + Math.pow(b.z - a.z, 2));
+	}
+
+	/**
+	 * 
+	 * Creates a weighted velocity vector that is added to the current motion
+	 * vector. All points within the distance threshold are considered. The
+	 * pressure value is multiplied by the multiplier from
+	 * {@link com.prodp.apsim.APPressurePoint#getMultiplier(float)} and
+	 * multiplied to the unit vector in the direction from the point to the
+	 * block.
+	 * 
+	 * See {@link com.prodp.apsim.APPressurePoint}.
+	 * 
+	 * @param process
+	 *            the current process
+	 * @param i
+	 *            the current index of the block
+	 */
+
+	private static void performPressure(APProcess process, int i) {
+
+		Point3i cloc = process.coordsort.get(i);
+
+		if (cloc == null)
+			return;
+
+		Vector3f addend = new Vector3f();
+
+		for (APPressurePoint j : process.pressures) {
+			if (j == null)
+				continue;
+
+			float distance = dist(cloc, j);
+
+			if (distance > APFinalData.DIST_THRESHOLD)
+				return;
+
+			float multiplier = j.getMultiplier(distance) * j.getValue();
+
+			Vector3f unitv = new Vector3f(cloc.x, cloc.y, cloc.z);
+			unitv.sub(new Vector3f(j.x, j.y, j.z));
+			unitv.normalize();
+			unitv.scale(multiplier);
+
+			addend.add(unitv);
+		}
+
+		process.dVelocity[i].x += addend.x;
+		process.dVelocity[i].y += addend.y;
+		process.dVelocity[i].z += addend.z;
+
+		// out of bounds
+		if (Float.isNaN(process.dVelocity[i].x))
+			process.dVelocity[i].x = 0;
+		if (Float.isNaN(process.dVelocity[i].y))
+			process.dVelocity[i].y = 0;
+		if (Float.isNaN(process.dVelocity[i].z))
+			process.dVelocity[i].z = 0;
+
+	}
+
+	/**
+	 * Cap a value.
+	 */
+
+	private static float cap(float value, float lower, float upper) {
+		if (value < lower)
+			return lower;
+		if (value > upper)
+			return upper;
+		return value;
+	}
+
+	/**
+	 * 
+	 * Updates the pressure points on the map. Flattens out the pressures, then
+	 * decays them.
+	 * 
+	 * @param process
+	 *            the current process
+	 */
+
+	public static void updatePressure(APProcess process) {
+
+		/*
+		 * float[] intvalues = new float[process.pressures.length];
+		 * 
+		 * for (int i = 0; i < process.pressures.length; i++) if
+		 * (process.pressures[i] != null) intvalues[i] =
+		 * process.pressures[i].getValue();
+		 * 
+		 * for (int i = 0; i < process.pressures.length; i++) { if
+		 * (process.pressures[i] == null) continue;
+		 * 
+		 * for (int j = 0; j < process.pressures.length; j++) { if
+		 * (process.pressures[j] == null) continue;
+		 * 
+		 * if (process.pressures[j].getValue() <= process.pressures[i]
+		 * .getValue()) continue;
+		 * 
+		 * float distance = dist(process.pressures[i], process.pressures[j]);
+		 * 
+		 * if (distance > APFinalData.DIST_THRESHOLD) continue;
+		 * 
+		 * float pressurechange = process.pressures[i] .getMultiplier(distance)
+		 * (process.pressures[j].getValue() - process.pressures[i] .getValue());
+		 * 
+		 * intvalues[i] += pressurechange; intvalues[j] -= pressurechange; } }
+		 */
+
+		for (int i = 0; i < process.pressures.length; i++) {
+			if (process.pressures[i] == null)
+				continue;
+
+			process.pressures[i].setValue(process.pressures[i].getValue()
+					* APFinalData.PRESSURE_DECAY_RATIO);
+			process.pressures[i].setPersistence((float) (1.5 * Math.pow(2,
+					-process.pressures[i].getPersistence() + 1)));
+
+			if (Math.abs(process.pressures[i].getValue()) < APFinalData.EXTINGUISH_THRESHOLD) {
+				// destroy the point
+				process.reversepressuresort.remove(process.pressures[i]);
+				process.pressures[i] = null;
+				Arrays.fill(process.windcoords, i * 2 * 3 * 3, i * 2 * 3 * 3
+						+ 18, -1);
+				continue;
+			}
+
+			System.arraycopy(
+					new byte[] {
+							(byte) (cap(process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (((1 - (Math.abs(process.pressures[i]
+									.getValue())) / APFinalData.PRESSURE_CAP)) * 255),
+							(byte) (cap(-process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (cap(process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (((1 - (Math.abs(process.pressures[i]
+									.getValue())) / APFinalData.PRESSURE_CAP)) * 255),
+							(byte) (cap(-process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (cap(process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (((1 - (Math.abs(process.pressures[i]
+									.getValue())) / APFinalData.PRESSURE_CAP)) * 255),
+							(byte) (cap(-process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (cap(process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (((1 - (Math.abs(process.pressures[i]
+									.getValue())) / APFinalData.PRESSURE_CAP)) * 255),
+							(byte) (cap(-process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (cap(process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (((1 - (Math.abs(process.pressures[i]
+									.getValue())) / APFinalData.PRESSURE_CAP)) * 255),
+							(byte) (cap(-process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (cap(process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255),
+							(byte) (((1 - (Math.abs(process.pressures[i]
+									.getValue())) / APFinalData.PRESSURE_CAP)) * 255),
+							(byte) (cap(-process.pressures[i].getValue(), 0,
+									APFinalData.PRESSURE_CAP)
+									/ APFinalData.PRESSURE_CAP * 255) }, 0,
+					process.windcolors, i * 3 * 3 * 2, 18);
+		}
 	}
 
 	/**

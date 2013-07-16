@@ -57,12 +57,17 @@ public class APProcess {
 	// MAIN BLOCK ARRAY
 	// *************************************************************
 
+	float[] windcoords = new float[APFinalData.PRESSURE_COUNT * 2 * 3 * 3];
+	byte[] windcolors = new byte[APFinalData.PRESSURE_COUNT * 2 * 3 * 3];
+
 	float[] coords = new float[APFinalData.LIMIT * 24 * 3];
 	byte[] colors = new byte[APFinalData.LIMIT * 24 * 4];
 	short[] status = new short[APFinalData.LIMIT];
 
 	// APVelocity[] velocity = new APVelocity[APFinalData.LIMIT];
 	APDecimalVelocity[] dVelocity = new APDecimalVelocity[APFinalData.LIMIT];
+
+	APPressurePoint[] pressures = new APPressurePoint[APFinalData.PRESSURE_COUNT];
 
 	int[] realcoords = new int[APFinalData.LIMIT * 3];
 
@@ -71,8 +76,11 @@ public class APProcess {
 	HashMap<Point3i, Integer> reversecoordsort = new HashMap<Point3i, Integer>(
 			APFinalData.LIMIT, 1f);
 
-	// MAIN BLOCK ARRAY
+	HashMap<Point3i, Integer> reversepressuresort = new HashMap<Point3i, Integer>(
+			128, 1f);
+
 	// *************************************************************
+	// MAIN BLOCK ARRAY
 
 	/**
 	 * 
@@ -212,7 +220,9 @@ public class APProcess {
 		save = new APWorld(worldPath);
 		// FLRBaBoT
 
-		Arrays.fill(colors, (byte) 0);
+		Arrays.fill(colors, (byte) 255);
+		Arrays.fill(windcolors, (byte) 0);
+		Arrays.fill(windcoords, -1);
 
 		for (int j = 0; j < APFinalData.LIMIT; j++) {
 

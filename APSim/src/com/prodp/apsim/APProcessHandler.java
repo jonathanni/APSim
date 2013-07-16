@@ -60,6 +60,8 @@ import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Canvas3D;
 import javax.media.j3d.GeometryArray;
 import javax.media.j3d.GraphicsConfigTemplate3D;
+import javax.media.j3d.LineArray;
+import javax.media.j3d.LineAttributes;
 import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.QuadArray;
 import javax.media.j3d.Shape3D;
@@ -141,6 +143,9 @@ public class APProcessHandler extends APObject implements ActionListener,
 	// shape array
 	private volatile static QuadArray cMain;
 
+	// wind array
+	private volatile static LineArray windLoc;
+
 	// light can only stay in this boundary
 	private static BoundingSphere bounds = new BoundingSphere(new Point3d(0, 0,
 			0), 20);
@@ -148,6 +153,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 	// shapes on scene graph
 	private static final Shape3D ground = new Shape3D();
 	private static final Shape3D aobjects = new Shape3D();
+	private static final Shape3D lobjects = new Shape3D();
 	private static final Shape3D selections = new Shape3D();
 
 	// selection box
@@ -194,7 +200,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 																				// this
 
 	// key detection flags
-	volatile static boolean[] keys = new boolean[14];
+	volatile static boolean[] keys = new boolean[15];
 	volatile static boolean[] prevaction = new boolean[8];
 
 	// mouse control
@@ -215,6 +221,12 @@ public class APProcessHandler extends APObject implements ActionListener,
 	 */
 
 	public static final APReactionList APRList = new APReactionList();
+
+	/**
+	 * Current tool
+	 */
+
+	private static int tool = APFinalData.TOOL_SPRAYVAC;
 
 	// Main getters and setters
 
@@ -530,17 +542,54 @@ public class APProcessHandler extends APObject implements ActionListener,
 		return isRunning;
 	}
 
-	// End of the getters and setters
-
-	// Ugly initialization code
+	/**
+	 * 
+	 * Gets how many blocks are on the scene.
+	 * 
+	 * @return the number of blocks
+	 */
 
 	public static int getBlockNumber() {
 		return blockNumber;
 	}
 
+	/**
+	 * 
+	 * Sets how many blocks are on the scene
+	 * 
+	 * @param blockNumber
+	 */
+
 	public static void setBlockNumber(int blockNumber) {
 		APProcessHandler.blockNumber = blockNumber;
 	}
+
+	/**
+	 * 
+	 * Get the current tool ID of the player.
+	 * 
+	 * @return the ID
+	 */
+
+	public static int getTool() {
+		return tool;
+	}
+
+	/**
+	 * 
+	 * Set the tool ID of the player.
+	 * 
+	 * @param tool
+	 *            the ID
+	 */
+
+	public static void setTool(int tool) {
+		APProcessHandler.tool = tool;
+	}
+
+	// End of the getters and setters
+
+	// Ugly initialization code
 
 	/**
 	 * 
@@ -597,6 +646,8 @@ public class APProcessHandler extends APObject implements ActionListener,
 				+ ".aps");
 		APList.addProcess(firstProcess);
 
+		APProcess process = APList.getCurrentProcess();
+
 		// The default position
 		mainRoutineFinalTransform.setTranslation(new Vector3f(0, 0, 0));
 
@@ -606,7 +657,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		TextureAttributes ta = new TextureAttributes();
 		ta.setTextureMode(TextureAttributes.MODULATE);
-		ta.setPerspectiveCorrectionMode(TextureAttributes.NICEST);
+		ta.setPerspectiveCorrectionMode(TextureAttributes.FASTEST);
 		ta.setTextureTransform(grass3d);
 
 		Appearance floorapp = new Appearance();
@@ -627,14 +678,25 @@ public class APProcessHandler extends APObject implements ActionListener,
 		cMain = new QuadArray(APFinalData.LIMIT * 24, QuadArray.COORDINATES
 				| QuadArray.COLOR_4 | QuadArray.BY_REFERENCE);
 
+		// Wind geometry array
+		windLoc = new LineArray(2 * APFinalData.PRESSURE_COUNT,
+				LineArray.COORDINATES | LineArray.COLOR_3
+						| LineArray.BY_REFERENCE);
+
 		// Dynamic positioning
 		cMain.setCapability(GeometryArray.ALLOW_REF_DATA_READ);
 		cMain.setCapability(GeometryArray.ALLOW_REF_DATA_WRITE);
 
+		windLoc.setCapability(GeometryArray.ALLOW_REF_DATA_READ);
+		windLoc.setCapability(GeometryArray.ALLOW_REF_DATA_WRITE);
+
 		// Set the reference of the geometry array to the coordinates and the
 		// colors
-		cMain.setCoordRefFloat(APList.getCurrentProcess().coords);
-		cMain.setColorRefByte(APList.getCurrentProcess().colors);
+		cMain.setCoordRefFloat(process.coords);
+		cMain.setColorRefByte(process.colors);
+
+		windLoc.setCoordRefFloat(process.windcoords);
+		windLoc.setColorRefByte(process.windcolors);
 
 		// Now add the reactionary components
 
@@ -670,9 +732,15 @@ public class APProcessHandler extends APObject implements ActionListener,
 		c3d.setLocation(0, 0);
 
 		// Don't let the geometry clip off
-		final Appearance NO_CULL = new Appearance();
-		NO_CULL.setPolygonAttributes(new PolygonAttributes(
-				PolygonAttributes.POLYGON_FILL, PolygonAttributes.CULL_NONE, 0));
+		final Appearance polyAppearance = new Appearance();
+		polyAppearance
+				.setPolygonAttributes(new PolygonAttributes(
+						PolygonAttributes.POLYGON_FILL,
+						PolygonAttributes.CULL_NONE, 0));
+
+		final Appearance lineAppearance = new Appearance();
+		lineAppearance.setLineAttributes(new LineAttributes(1,
+				LineAttributes.PATTERN_SOLID, false));
 
 		// TransparencyAttributes trans = new TransparencyAttributes();
 		// trans.setTransparencyMode(TransparencyAttributes.BLENDED);
@@ -680,7 +748,11 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		// Add the GeometryArray to the Shape3D
 		aobjects.addGeometry(cMain);
-		aobjects.setAppearance(NO_CULL);
+		aobjects.setAppearance(polyAppearance);
+
+		lobjects.addGeometry(windLoc);
+		lobjects.setAppearance(lineAppearance);
+
 		ground.addGeometry(APFinalData.floor);
 		ground.setAppearance(floorapp);
 
@@ -711,8 +783,8 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		// Scene initialization
 		scene = new APSceneGraph(c3d);
-		scene.addChild(APFinalData.whiteLight, aobjects, ground, back,
-				APFinalData.brushes);
+		scene.addChild(APFinalData.whiteLight, aobjects, lobjects, ground,
+				back, APFinalData.brushes);
 
 		// Add it to the world
 		scene.addBranchGraph();
@@ -769,6 +841,8 @@ public class APProcessHandler extends APObject implements ActionListener,
 		APFinalData.anaglyphRedGreen.addActionListener(this);
 		APFinalData.senseSlider.addChangeListener(this);
 		APFinalData.elementChooser.addActionListener(this);
+		APFinalData.SprayVacuum.addActionListener(this);
+		APFinalData.Wind.addActionListener(this);
 
 		APFinalData.processSwitch.setBackground(Color.WHITE);
 		APFinalData.processSwitch.addChangeListener(this);
@@ -806,6 +880,9 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		cMain.setCoordRefFloat(process.coords);
 		cMain.setColorRefByte(process.colors);
+
+		windLoc.setCoordRefFloat(process.windcoords);
+		windLoc.setColorRefByte(process.windcolors);
 	}
 
 	/**
@@ -820,6 +897,67 @@ public class APProcessHandler extends APObject implements ActionListener,
 	public static void updateServer(APServerThread srv) throws IOException {
 		srv.getOutputStream().writeByte(APFinalData.REQ_CLIENT_UPDATE);
 		srv.getOutputStream().writeObject(APList.getCurrentProcess().status);
+	}
+
+	/**
+	 * 
+	 * Adds a new pressure coordinate to the world or augments/decreases the
+	 * power of an existing one.
+	 * 
+	 * @param leftclick
+	 *            whether or not the LMB is depressed
+	 */
+
+	static final void addWind(boolean leftclick) {
+
+		APProcess process = APList.getCurrentProcess();
+		float persistence = 5;
+
+		int empty = APArrayUtils.findEmptySpace(process.pressures);
+		if (empty == -1)
+			return;
+
+		Point3d sel = new Point3d(selectionCoords[0], selectionCoords[1],
+				selectionCoords[2]);
+		Point3i realsel = new Point3i((int) Math.round(sel.x
+				/ APFinalData.BOXSIZE), (int) Math.round(sel.y
+				/ APFinalData.BOXSIZE), (int) Math.round(sel.z
+				/ APFinalData.BOXSIZE));
+
+		if (realsel.y < 0)
+			return;
+
+		int multiplier = leftclick ? 1 : -1;
+
+		Integer repl;
+		if ((repl = process.reversepressuresort.get(realsel)) != null) {
+
+			process.pressures[repl].setValue(process.pressures[repl].getValue()
+					+ multiplier * APFinalData.PRESSURE_ADD);
+			process.pressures[repl].setPersistence((float) Math
+					.sqrt(process.pressures[repl].getPersistence())); // converge
+																		// to 1
+
+			if (Math.abs(process.pressures[repl].getValue()) > APFinalData.PRESSURE_CAP)
+				process.pressures[repl].setValue(multiplier
+						* APFinalData.PRESSURE_CAP);
+			return;
+		}
+
+		process.pressures[empty] = new APPressurePoint(realsel.x, realsel.y,
+				realsel.z, multiplier * APFinalData.PRESSURE_ADD, persistence);
+		process.reversepressuresort.put(realsel, empty);
+
+		System.arraycopy(new float[] {
+				(float) (sel.x - APFinalData.BOXSIZE / 2), (float) sel.y,
+				(float) sel.z, (float) (sel.x + APFinalData.BOXSIZE / 2),
+				(float) sel.y, (float) sel.z, (float) sel.x,
+				(float) (sel.y - APFinalData.BOXSIZE / 2), (float) sel.z,
+				(float) sel.x, (float) (sel.y + APFinalData.BOXSIZE / 2),
+				(float) sel.z, (float) sel.x, (float) sel.y,
+				(float) (sel.z - APFinalData.BOXSIZE / 2), (float) sel.x,
+				(float) sel.y, (float) (sel.z + APFinalData.BOXSIZE / 2) }, 0,
+				process.windcoords, empty * 2 * 3 * 3, 18);
 	}
 
 	/**
@@ -862,6 +1000,40 @@ public class APProcessHandler extends APObject implements ActionListener,
 		process.reversecoordsort.put(null, index);
 
 		process.coordsort.put(index, null);
+
+		blockNumber--;
+	}
+
+	/**
+	 * 
+	 * Add a block. Sets the status ID and sets the position to the argument.
+	 * Also sets the coordinate HashMaps. Assumes the index of the block is not
+	 * defined.
+	 * 
+	 * @param process
+	 *            the current process
+	 * @param index
+	 *            the block index to be added
+	 * @param loc
+	 *            the location of the new block
+	 * @param status
+	 *            the status (material) of the block
+	 */
+
+	static final void addBlock(final APProcess process, final int index,
+			Point3i loc, short status) {
+		process.status[index] = status;
+
+		process.coords[index * 24 * 3] = loc.x * APFinalData.BOXSIZE;
+		process.coords[index * 24 * 3 + 1] = loc.y * APFinalData.BOXSIZE;
+		process.coords[index * 24 * 3 + 2] = loc.z * APFinalData.BOXSIZE;
+
+		process.realcoords[index * 3] = loc.x;
+		process.realcoords[index * 3 + 1] = loc.y;
+		process.realcoords[index * 3 + 2] = loc.z;
+
+		process.reversecoordsort.put(loc, index);
+		process.coordsort.put(index, loc);
 	}
 
 	/**
@@ -896,6 +1068,9 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		if (process.isFrozen())
 			return;
+
+		// Update pressure points
+		APArrayUtils.updatePressure(process);
 
 		for (int i = 0; i < APFinalData.LIMIT; i++) {
 
@@ -1101,26 +1276,22 @@ public class APProcessHandler extends APObject implements ActionListener,
 			if (process.aCount != -1
 					&& !(cT.y < 0)
 					&& (process.aCount == 0 || !process.reversecoordsort
-							.containsKey(new Point3i(
-									(int) (cT.x / APFinalData.BOXSIZE),
-									(int) (cT.y / APFinalData.BOXSIZE),
-									(int) (cT.z / APFinalData.BOXSIZE))))) {
+							.containsKey(new Point3i((int) Math.round(cT.x
+									/ APFinalData.BOXSIZE), (int) Math
+									.round(cT.y / APFinalData.BOXSIZE),
+									(int) Math
+											.round(cT.z / APFinalData.BOXSIZE))))) {
 
 				final int index = process.aCount;
-				// Transfer current element
-				process.status[index] = process.getMaterial().getID();
 
-				// Transfer coordinates
-				process.realcoords[index * 3] = (int) Math.round(cT.x
-						/ APFinalData.BOXSIZE);
-				process.realcoords[index * 3 + 1] = (int) Math.round(cT.y
-						/ APFinalData.BOXSIZE);
-				process.realcoords[index * 3 + 2] = (int) Math.round(cT.z
-						/ APFinalData.BOXSIZE);
-
-				process.coords[index * 24 * 3] = (float) cT.x;
-				process.coords[index * 24 * 3 + 1] = (float) cT.y;
-				process.coords[index * 24 * 3 + 2] = (float) cT.z;
+				addBlock(
+						process,
+						index,
+						new Point3i((int) Math
+								.round(cT.x / APFinalData.BOXSIZE), (int) Math
+								.round(cT.y / APFinalData.BOXSIZE), (int) Math
+								.round(cT.z / APFinalData.BOXSIZE)), process
+								.getMaterial().getID());
 
 				// Update coord and color
 				APArrayUtils.setCoordBlocks(process.coords, index * 24 * 3);
@@ -1158,27 +1329,16 @@ public class APProcessHandler extends APObject implements ActionListener,
 			// Conditionals
 			if (!(cT.y < 0)
 					&& (index = process.reversecoordsort.get(new Point3i(
-							(int) (cT.x / APFinalData.BOXSIZE),
-							(int) (cT.y / APFinalData.BOXSIZE),
-							(int) (cT.z / APFinalData.BOXSIZE)))) != null) {
-				// Null the block
-				process.status[index] = 0;
+							(int) Math.round(cT.x / APFinalData.BOXSIZE),
+							(int) Math.round(cT.y / APFinalData.BOXSIZE),
+							(int) Math.round(cT.z / APFinalData.BOXSIZE)))) != null) {
 
-				// Transfer coordinates
-				process.realcoords[index * 3] = 0;
-				process.realcoords[index * 3 + 1] = -10;
-				process.realcoords[index * 3 + 2] = 0;
-
-				process.coords[index * 24 * 3] = 0;
-				process.coords[index * 24 * 3 + 1] = -10 * APFinalData.BOXSIZE;
-				process.coords[index * 24 * 3 + 2] = 0;
+				removeBlock(process, index);
 
 				// Update coord and color
 				APArrayUtils.setCoordBlocks(process.coords, index * 24 * 3);
 				APArrayUtils.setColorBlocks(process.colors, APMaterial.NULL,
 						index * 24 * 4);
-
-				blockNumber--;
 			}
 		}
 	}
@@ -1333,6 +1493,9 @@ public class APProcessHandler extends APObject implements ActionListener,
 		case KeyEvent.VK_H:
 			keys[13] = true;
 			break;
+		case KeyEvent.VK_SHIFT:
+			keys[14] = true;
+			break;
 		default:
 			APFinalData.debug(keyCode);
 		}
@@ -1394,6 +1557,9 @@ public class APProcessHandler extends APObject implements ActionListener,
 		case KeyEvent.VK_H:
 			keys[13] = false;
 			prevaction[7] = false;
+			break;
+		case KeyEvent.VK_SHIFT:
+			keys[14] = false;
 			break;
 		default:
 			APFinalData.debug(keyCode);
@@ -1584,6 +1750,18 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		else if (e.getSource() == APFinalData.anaglyphRedGreen)
 			amode = AnaglyphMode.REDGREEN_ANAGLYPHS;
+
+		else if (e.getSource() == APFinalData.SprayVacuum) {
+			setTool(APFinalData.TOOL_SPRAYVAC);
+			APFinalData.SprayVacuum.setSelected(true);
+			APFinalData.Wind.setSelected(false);
+		}
+
+		else if (e.getSource() == APFinalData.Wind) {
+			setTool(APFinalData.TOOL_WIND);
+			APFinalData.SprayVacuum.setSelected(false);
+			APFinalData.Wind.setSelected(true);
+		}
 	}
 
 	private void checkUpdate() throws IOException {

@@ -26,7 +26,7 @@ public class APFPSUpdater extends TimerTask {
 
 		builder.append(APFinalData.getVersion()).append(" ")
 				.append(String.format(String.format("%%0%dd", 5), APMain.fps))
-				.append(" fps")
+				.append(" fps, ")
 				.append(APFinalData.LIMIT - APProcessHandler.getBlockNumber())
 				.append(" blocks left");
 
