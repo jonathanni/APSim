@@ -1,6 +1,9 @@
 package com.prodp.apsim;
 
 import java.awt.AWTException;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -9,10 +12,10 @@ import java.io.IOException;
 import java.util.Timer;
 
 import javax.imageio.ImageIO;
-import javax.media.j3d.Canvas3D;
 import javax.media.j3d.ImageComponent;
 import javax.media.j3d.ImageComponent2D;
 import javax.media.j3d.Screen3D;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -155,7 +158,7 @@ public final class APMain extends APObject implements Runnable {
 				new File("_screenshots").mkdir();
 			try {
 				ImageIO.write(
-						takeScreenshot(APProcessHandler.getCanvas(), 2),
+						takeScreenshot(APProcessHandler.getCanvas()),
 						"png",
 						new File("_screenshots/"
 								+ (System.currentTimeMillis() / 1000L) + ".png"));
@@ -388,32 +391,17 @@ public final class APMain extends APObject implements Runnable {
 	 * @return the screenshot
 	 */
 
-	public static BufferedImage takeScreenshot(Canvas3D canvas, int scale) {
-
-		Screen3D on = canvas.getScreen3D();
-
-		Canvas3D shot = new Canvas3D(canvas.getGraphicsConfiguration(), true);
-		canvas.getView().stopView();
-		canvas.getView().addCanvas3D(shot);
-		canvas.getView().startView();
-
-		Screen3D off = shot.getScreen3D();
-		off.setSize(on.getSize());
-		off.setPhysicalScreenHeight(on.getPhysicalScreenHeight());
-		off.setPhysicalScreenWidth(on.getPhysicalScreenWidth());
-		shot.setOffScreenLocation(canvas.getLocationOnScreen());
-
-		BufferedImage bi = new BufferedImage(canvas.getWidth() * scale,
-				canvas.getHeight() * scale, BufferedImage.TYPE_INT_ARGB);
-		ImageComponent2D buffer = new ImageComponent2D(
-				ImageComponent.FORMAT_RGB, bi);
-		shot.setOffScreenBuffer(buffer);
-		shot.renderOffScreenBuffer();
-		shot.waitForOffScreenRendering();
-		BufferedImage res = shot.getOffScreenBuffer().getImage();
-		canvas.getView().removeCanvas3D(shot);
-
-		return res;
-
+	protected BufferedImage takeScreenshot(APRenderer window) {
+		Point p = window.getLocationOnScreen();
+		Rectangle bounds = new Rectangle(p.x, p.y, window.getWidth(),
+				window.getHeight());
+		try {
+			Robot robot = new Robot(window.getGraphicsConfiguration()
+					.getDevice());
+			return robot.createScreenCapture(bounds);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

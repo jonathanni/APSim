@@ -62,6 +62,7 @@ public class APProcess {
 
 	float[] coords = new float[APFinalData.LIMIT * 24 * 3];
 	byte[] colors = new byte[APFinalData.LIMIT * 24 * 4];
+	float[] texturecoords = new float[APFinalData.LIMIT * 24 * 2];
 	short[] status = new short[APFinalData.LIMIT];
 
 	// APVelocity[] velocity = new APVelocity[APFinalData.LIMIT];
@@ -220,9 +221,9 @@ public class APProcess {
 		save = new APWorld(worldPath);
 		// FLRBaBoT
 
-		Arrays.fill(colors, (byte) 255);
 		Arrays.fill(windcolors, (byte) 0);
 		Arrays.fill(windcoords, -1);
+		Arrays.fill(texturecoords, 0);
 
 		for (int j = 0; j < APFinalData.LIMIT; j++) {
 

@@ -129,7 +129,6 @@ public enum APMaterial {
 	private int density;
 	private short ID;
 	private String name;
-	private String texturePath;
 
 	/**
 	 * Necessary default construct for builders.

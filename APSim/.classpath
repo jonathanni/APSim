@@ -24,8 +24,8 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="src/commons-configuration-1.7.jar"/>
 	<classpathentry kind="lib" path="src/commons-lang3-3.1.jar" sourcepath="C:/Users/Jonathan/Downloads/commons-lang3-3.1-src.zip"/>
-	<classpathentry kind="lib" path="src/AnaglyphCanvas3DGUI.jar"/>
 	<classpathentry kind="lib" path="src/guava-11.0.2.jar"/>
+	<classpathentry kind="lib" path="src/AnaglyphCanvas3Dlib.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>

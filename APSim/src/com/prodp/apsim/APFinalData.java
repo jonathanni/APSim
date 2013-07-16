@@ -7,7 +7,6 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.MemoryImageSource;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +19,7 @@ import javax.media.j3d.Appearance;
 import javax.media.j3d.BranchGroup;
 import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.QuadArray;
+import javax.media.j3d.Texture;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -683,18 +683,19 @@ public class APFinalData extends APObject {
 	}
 
 	/**
-	 * Texture image loader for the block textures.
+	 * All textures. Different textures are accessed through texture
+	 * coordinates.
 	 */
-	
-	public static TextureLoader blocktx;
+
+	public static Texture textures;
 
 	static {
 		brushlocs = createBrushLocs(MAX_BRUSH_SIZE);
 		spherecoords = getSphereCoords();
 
 		try {
-			blocktx = new TextureLoader(ImageIO.read(new File(
-					"../texture/texture.png")));
+			textures = new TextureLoader(ImageIO.read(APMain.class
+					.getResource("texture/textures.png"))).getTexture();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1446,5 +1447,17 @@ public class APFinalData extends APObject {
 	 */
 
 	public static final int PRESSURE_COUNT = 128;
+
+	/**
+	 * Texture block size.
+	 */
+
+	public static final int TEX_SIZE = 64;
+
+	/**
+	 * Textures along the y-axis of the image. Will always be 6.
+	 */
+	
+	public static final int TEX_TSIDE_SIZE = 6;
 
 }

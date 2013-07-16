@@ -91,6 +91,60 @@ public class APArrayUtils extends APObject {
 
 	/**
 	 * 
+	 * Sets the other 23 vertices of the cube to their respective 2 dimensional
+	 * texture coordinates.
+	 * 
+	 * The order of mapping is
+	 * 
+	 * <pre>
+	 * F RON T
+	 * L E F T
+	 * R IGH T
+	 * B A C K
+	 * BOT TOM
+	 * T  O  P
+	 * </pre>
+	 * 
+	 * 
+	 * @param block
+	 *            the array including <b>all</b> the cube coordinates
+	 * @param index
+	 *            the index of the current box focused on out of all the boxes
+	 * @param id
+	 *            the current id of the material (box)
+	 */
+
+	public final static void setTextureCoordBlocks(float[] block,
+			final int index, short id) {
+
+		final float TEX_SIDE_SIZE_PX = APFinalData.textures.getImage(0)
+				.getWidth();
+		final float TEX_TSIDE_SIZE_PX = 384;
+		final float FRAC_TEX_SIDE = APFinalData.TEX_SIZE / TEX_SIDE_SIZE_PX;
+		final float FRAC_TEX_TSIDE = APFinalData.TEX_SIZE / TEX_TSIDE_SIZE_PX;
+
+		float x1 = APFinalData.TEX_SIZE
+				* ((id - 1) % (TEX_SIDE_SIZE_PX / APFinalData.TEX_SIZE))
+				/ TEX_SIDE_SIZE_PX, y1 = 0, x2 = x1, y2 = FRAC_TEX_TSIDE, x3 = x1
+				+ FRAC_TEX_SIDE, y3 = y2, x4 = x3, y4 = y1;
+
+		System.arraycopy(new float[] { x1, y1, x2, y2, x3, y3, x4, y4, x1,
+				y1 + 3 * FRAC_TEX_TSIDE, x2, y2 + 3 * FRAC_TEX_TSIDE, x3,
+				y3 + 3 * FRAC_TEX_TSIDE, x4, y4 + 3 * FRAC_TEX_TSIDE, x1,
+				y1 + 2 * FRAC_TEX_TSIDE, x2, y2 + 2 * FRAC_TEX_TSIDE, x3,
+				y3 + 2 * FRAC_TEX_TSIDE, x4, y4 + 2 * FRAC_TEX_TSIDE, x1,
+				y1 + FRAC_TEX_TSIDE, x2, y2 + FRAC_TEX_TSIDE, x3,
+				y3 + FRAC_TEX_TSIDE, x4, y4 + FRAC_TEX_TSIDE, x1,
+				y1 + 4 * FRAC_TEX_TSIDE, x2, y2 + 4 * FRAC_TEX_TSIDE, x3,
+				y3 + 4 * FRAC_TEX_TSIDE, x4, y4 + 4 * FRAC_TEX_TSIDE, x1,
+				y1 + 5 * FRAC_TEX_TSIDE, x2, y2 + 5 * FRAC_TEX_TSIDE, x3,
+				y3 + 5 * FRAC_TEX_TSIDE, x4, y4 + 5 * FRAC_TEX_TSIDE }, 0,
+				block, index, 48);
+
+	}
+
+	/**
+	 * 
 	 * Sets the other 23 vertices of the cube to their respective coordinates.
 	 * 
 	 * Since a cube has 24 vertices, and there is an x, y, z tuple for every
@@ -138,18 +192,17 @@ public class APArrayUtils extends APObject {
 				APFinalData.BOXXZ.z + z, APFinalData.BOXX.x + x, y, z,
 				APFinalData.BOXXY.x + x, APFinalData.BOXXY.y + y, z,
 				APFinalData.BOXXYZ.x + x, APFinalData.BOXXYZ.y + y,
-				APFinalData.BOXXYZ.z + z, APFinalData.BOXZ.x + x, y,
-				APFinalData.BOXZ.z + z, APFinalData.BOXXZ.x + x, y,
-				APFinalData.BOXXZ.z + z, APFinalData.BOXXYZ.x + x,
-				APFinalData.BOXXYZ.y + y, APFinalData.BOXXYZ.z + z, x,
-				APFinalData.BOXYZ.y + y, APFinalData.BOXYZ.z + z, x, y, z,
-				APFinalData.BOXX.x + x, y, z, APFinalData.BOXXZ.x + x, y,
-				APFinalData.BOXXZ.z + z, x, y, APFinalData.BOXZ.z + z, x,
-				APFinalData.BOXY.y + y, z, APFinalData.BOXXY.x + x,
-				APFinalData.BOXXY.y + y, z, APFinalData.BOXXYZ.x + x,
-				APFinalData.BOXXYZ.y + y, APFinalData.BOXXYZ.z + z, x,
-				APFinalData.BOXYZ.y + y, APFinalData.BOXYZ.z + z }, 0, block,
-				index, 72);
+				APFinalData.BOXXYZ.z + z, x, y, APFinalData.BOXZ.z + z,
+				APFinalData.BOXXZ.x + x, y, APFinalData.BOXXZ.z + z,
+				APFinalData.BOXXYZ.x + x, APFinalData.BOXXYZ.y + y,
+				APFinalData.BOXXYZ.z + z, x, APFinalData.BOXYZ.y + y,
+				APFinalData.BOXYZ.z + z, x, y, z, APFinalData.BOXX.x + x, y, z,
+				APFinalData.BOXXZ.x + x, y, APFinalData.BOXXZ.z + z, x, y,
+				APFinalData.BOXZ.z + z, x, APFinalData.BOXY.y + y, z,
+				APFinalData.BOXXY.x + x, APFinalData.BOXXY.y + y, z,
+				APFinalData.BOXXYZ.x + x, APFinalData.BOXXYZ.y + y,
+				APFinalData.BOXXYZ.z + z, x, APFinalData.BOXYZ.y + y,
+				APFinalData.BOXYZ.z + z }, 0, block, index, 72);
 	}
 
 	/**

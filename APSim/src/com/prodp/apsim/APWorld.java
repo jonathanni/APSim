@@ -125,13 +125,9 @@ public class APWorld extends APProcessableItem {
 			bar.setValue((int) (i / APFinalData.LIMIT * 50));
 		}
 
-		for (int i = 0; i < APFinalData.LIMIT; i++) {
+		for (int i = 0; i < APFinalData.PRESSURE_COUNT; i++) {
 
-			out.writeInt(process.pressures[i].x);
-			out.writeInt(process.pressures[i].y);
-			out.writeInt(process.pressures[i].z);
-			out.writeFloat(process.pressures[i].getValue());
-			out.writeFloat(process.pressures[i].getPersistence());
+			out.writeObject(process.pressures[i]);
 
 			bar.setValue(50 + (int) (i / APFinalData.LIMIT * 50));
 		}
@@ -199,15 +195,14 @@ public class APWorld extends APProcessableItem {
 			bar.setValue((int) (i / APFinalData.LIMIT * 50));
 		}
 
-		for (int i = 0; i < APFinalData.LIMIT; i++) {
+		try {
+			for (int i = 0; i < APFinalData.PRESSURE_COUNT; i++) {
+				process.pressures[i] = (APPressurePoint) in.readObject();
 
-			process.pressures[i].x = in.readInt();
-			process.pressures[i].y = in.readInt();
-			process.pressures[i].z = in.readInt();
-			process.pressures[i].setValue(in.readFloat());
-			process.pressures[i].setPersistence(in.readFloat());
-
-			bar.setValue(50 + (int) (i / APFinalData.LIMIT * 50));
+				bar.setValue(50 + (int) (i / APFinalData.LIMIT * 50));
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 
 		loader.setVisible(false);

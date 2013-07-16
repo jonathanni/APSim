@@ -8,6 +8,7 @@
  * Also uses packages included in "jgoodies-common-1.2.1.jar" and "jgoodies-looks-2.4.2.jar" for setLookAndFeel.
  * Also uses AnaglyphCanvas3D, at http://sourceforge.net/projects/anaglyphcanvas3/.
  * Uses screenshot utility at http://www.java.net/node/647363.
+ * Uses Java 3D library at http://java3d.java.net/
  * 
  */
 
@@ -57,7 +58,6 @@ import javax.media.j3d.Appearance;
 import javax.media.j3d.Background;
 import javax.media.j3d.BoundingSphere;
 import javax.media.j3d.BranchGroup;
-import javax.media.j3d.Canvas3D;
 import javax.media.j3d.GeometryArray;
 import javax.media.j3d.GraphicsConfigTemplate3D;
 import javax.media.j3d.LineArray;
@@ -68,6 +68,7 @@ import javax.media.j3d.Shape3D;
 import javax.media.j3d.TextureAttributes;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
+import javax.media.j3d.TransparencyAttributes;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -527,7 +528,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 	 * @return the canvas
 	 */
 
-	public static Canvas3D getCanvas() {
+	public static APRenderer getCanvas() {
 		return c3d;
 	}
 
@@ -676,7 +677,8 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		// Main geometry array
 		cMain = new QuadArray(APFinalData.LIMIT * 24, QuadArray.COORDINATES
-				| QuadArray.COLOR_4 | QuadArray.BY_REFERENCE);
+				| QuadArray.COLOR_4 | QuadArray.BY_REFERENCE
+				| QuadArray.TEXTURE_COORDINATE_2);
 
 		// Wind geometry array
 		windLoc = new LineArray(2 * APFinalData.PRESSURE_COUNT,
@@ -694,6 +696,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 		// colors
 		cMain.setCoordRefFloat(process.coords);
 		cMain.setColorRefByte(process.colors);
+		cMain.setTexCoordRefFloat(0, process.texturecoords);
 
 		windLoc.setCoordRefFloat(process.windcoords);
 		windLoc.setColorRefByte(process.windcolors);
@@ -737,14 +740,16 @@ public class APProcessHandler extends APObject implements ActionListener,
 				.setPolygonAttributes(new PolygonAttributes(
 						PolygonAttributes.POLYGON_FILL,
 						PolygonAttributes.CULL_NONE, 0));
+		polyAppearance.setTextureAttributes(new TextureAttributes());
+		polyAppearance.setTexture(APFinalData.textures);
 
 		final Appearance lineAppearance = new Appearance();
 		lineAppearance.setLineAttributes(new LineAttributes(1,
 				LineAttributes.PATTERN_SOLID, false));
 
-		// TransparencyAttributes trans = new TransparencyAttributes();
-		// trans.setTransparencyMode(TransparencyAttributes.BLENDED);
-		// NO_CULL.setTransparencyAttributes(trans);
+		TransparencyAttributes trans = new TransparencyAttributes();
+		trans.setTransparencyMode(TransparencyAttributes.NICEST);
+		polyAppearance.setTransparencyAttributes(trans);
 
 		// Add the GeometryArray to the Shape3D
 		aobjects.addGeometry(cMain);
@@ -880,6 +885,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		cMain.setCoordRefFloat(process.coords);
 		cMain.setColorRefByte(process.colors);
+		cMain.setTexCoordRefFloat(0, process.texturecoords);
 
 		windLoc.setCoordRefFloat(process.windcoords);
 		windLoc.setColorRefByte(process.windcolors);
@@ -1032,6 +1038,8 @@ public class APProcessHandler extends APObject implements ActionListener,
 		process.realcoords[index * 3 + 1] = loc.y;
 		process.realcoords[index * 3 + 2] = loc.z;
 
+		process.texturecoords[index * 24 * 2] = 64 * (process.status[index] - 1);
+
 		process.reversecoordsort.put(loc, index);
 		process.coordsort.put(index, loc);
 	}
@@ -1131,6 +1139,9 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 			// if (process.realcoords[i * 3 + 1] != -1)
 			APArrayUtils.setCoordBlocks(process.coords, i * 24 * 3);
+			if (process.status[i] != 0)
+				APArrayUtils.setTextureCoordBlocks(process.texturecoords,
+						i * 24 * 2, process.status[i]);
 			APArrayUtils.setColorBlocks(process.colors,
 					APMaterialsList.getMaterialByID(process.status[i]),
 					i * 24 * 4);
@@ -1617,7 +1628,8 @@ public class APProcessHandler extends APObject implements ActionListener,
 							+ "Physics Adviser: Sachin Pandey<br />"
 							+ "PR: Jonathan Ni<br />"
 							+ "Project Manager: Jonathan Ni<br />"
-							+ "Graphics: Alex Yu, Michael Zhang<br /><br />"
+							+ "Graphics: Alex Yu, Michael Zhang<br />"
+							+ "Original 64x64 Textures: Alex Yu <br /><br />"
 							+ "Libraries used: <br />"
 							+ "<ul>"
 							+ "<li>Java 3D</li>"

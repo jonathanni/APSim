@@ -1,9 +1,7 @@
 package com.prodp.apsim;
 
 import java.awt.GraphicsConfiguration;
-
 import javax.swing.JComponent;
-
 import anaglyphcanvas3d.AnaglyphCanvas3D;
 
 /**
@@ -47,14 +45,15 @@ public class APRenderer extends AnaglyphCanvas3D {
 	 * 
 	 * Sets the scene antialiasing option of the canvas.
 	 * 
-	 * @param a the flag
+	 * @param a
+	 *            the flag
 	 */
-	
+
 	public void setSceneAntialiasingEnable(boolean a) {
 		isAntialiased = a;
 		getView().setSceneAntialiasingEnable(a);
 	}
-	
+
 	/**
 	 * 
 	 * Gets if the scene is antialiased.
