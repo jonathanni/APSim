@@ -12,10 +12,7 @@
  * 
  */
 
-//BEFORE YOU DO ANYTHING, OPEN THIS UP IN ECLIPSE AND EXPAND THIS PANEL:
-
-//Ctrl-F 11611I (SOLVED)
-//Ctrl-F
+//Bug 11611I (November 6, 2011 SOLVED)
 
 package com.prodp.apsim;
 
