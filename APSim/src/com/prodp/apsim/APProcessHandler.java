@@ -748,7 +748,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 				LineAttributes.PATTERN_SOLID, false));
 
 		TransparencyAttributes trans = new TransparencyAttributes();
-		trans.setTransparencyMode(TransparencyAttributes.NICEST);
+		trans.setTransparencyMode(TransparencyAttributes.BLENDED);
 		polyAppearance.setTransparencyAttributes(trans);
 
 		// Add the GeometryArray to the Shape3D
@@ -805,6 +805,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 				.setLeftEyePosition(new Point3d(-0.01, 0, 0));
 		c3d.getView().getPhysicalBody()
 				.setRightEyePosition(new Point3d(0.01, 0, 0));
+		c3d.getView().setDepthBufferFreezeTransparent(false);
 
 		// Note: c3d has no anaglyphs
 		c3d.setStereoMode(StereoMode.OFF);
@@ -1629,7 +1630,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 							+ "PR: Jonathan Ni<br />"
 							+ "Project Manager: Jonathan Ni<br />"
 							+ "Graphics: Alex Yu, Michael Zhang<br />"
-							+ "Original 64x64 Textures: Alex Yu <br /><br />"
+							+ "Original 64x64 Textures: Jonathan Ni, Alex Yu <br /><br />"
 							+ "Libraries used: <br />"
 							+ "<ul>"
 							+ "<li>Java 3D</li>"

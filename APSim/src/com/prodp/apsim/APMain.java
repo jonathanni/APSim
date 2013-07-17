@@ -12,10 +12,6 @@ import java.io.IOException;
 import java.util.Timer;
 
 import javax.imageio.ImageIO;
-import javax.media.j3d.ImageComponent;
-import javax.media.j3d.ImageComponent2D;
-import javax.media.j3d.Screen3D;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
