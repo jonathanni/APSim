@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="APSim/native"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/j3dutils.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Users/Jonathan/Desktop/j3ddoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/jgoodies-common-1.2.1.jar"/>
+	<classpathentry kind="lib" path="src/jgoodies-looks-2.4.2.jar"/>
+	<classpathentry kind="lib" path="src/vecmath.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Users/Jonathan/Desktop/j3ddoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/j3dcore.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Users/Jonathan/Desktop/j3ddoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/commons-configuration-1.7.jar"/>
+	<classpathentry kind="lib" path="src/commons-lang3-3.1.jar" sourcepath="C:/Users/Jonathan/Downloads/commons-lang3-3.1-src.zip"/>
+	<classpathentry kind="lib" path="src/guava-11.0.2.jar"/>
+	<classpathentry kind="lib" path="src/AnaglyphCanvas3Dlib.jar"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
