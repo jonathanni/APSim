@@ -2,13 +2,9 @@ package com.prodp.apsim;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 
@@ -35,7 +31,7 @@ import com.jgoodies.looks.windows.WindowsTabbedPaneUI;
  * 
  */
 
-public class APGUI extends JFrame implements ActionListener {
+public class APGUI extends JApplet {
 
 	// Called by APProcessHandler
 
@@ -188,44 +184,9 @@ public class APGUI extends JFrame implements ActionListener {
 		APFinalData.mainFrame
 				.add(APFinalData.processSwitch, BorderLayout.NORTH);
 		APFinalData.mainFrame.setLocation(500, 200);
-		APFinalData.mainFrame.setTitle("APSimulator");
-		APFinalData.mainFrame.setIconImage(APFinalData.apIconImage);
-		APFinalData.mainFrame.pack();
-
-		APFinalData.start.addActionListener(this);
-		APFinalData.exit.addActionListener(this);
 
 		APBlurLabel title = new APBlurLabel("APSim " + APFinalData.getVersion());
 		title.setFont(APFinalData.header3);
-
-		APFinalData.titleMenu.setUndecorated(true);
-		APFinalData.titleMenu.setAlwaysOnTop(true);
-
-		APFinalData.titleMenu.setLayout(new FlowLayout(FlowLayout.CENTER));
-
-		APFinalData.titleButtons.setLayout(new BoxLayout(
-				APFinalData.titleButtons, BoxLayout.X_AXIS));
-
-		APFinalData.titleButtons.add(Box.createHorizontalStrut(15));
-		APFinalData.titleButtons.add(title, BorderLayout.NORTH);
-		APFinalData.titleButtons.add(Box.createHorizontalStrut(15));
-
-		APFinalData.titleButtons.add(APFinalData.start);
-		APFinalData.titleButtons.add(Box.createHorizontalStrut(15));
-		APFinalData.titleButtons.add(APFinalData.exit);
-
-		APFinalData.titleMenu.add(APFinalData.titleButtons);
-		APFinalData.titleMenu.pack();
-		APFinalData.titleMenu.setSize(APFinalData.titleMenu.getWidth(),
-				APFinalData.titleMenu.getHeight() * 2);
-		APFinalData.titleMenu.pack();
-		APFinalData.titleMenu.setVisible(true);
-		APFinalData.titleMenu
-				.setLocation(
-						(Toolkit.getDefaultToolkit().getScreenSize().width - APFinalData.titleMenu
-								.getWidth()) / 2, (Toolkit.getDefaultToolkit()
-								.getScreenSize().height - APFinalData.titleMenu
-								.getHeight()) / 2);
 
 		// Layout
 		APFinalData.viewop.getContentPane().setLayout(
@@ -257,14 +218,5 @@ public class APGUI extends JFrame implements ActionListener {
 		APFinalData.processSwitch.setDoubleBuffered(true);
 		APFinalData.processSwitch.setUI(new WindowsTabbedPaneUI());
 
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == APFinalData.start) {
-			APFinalData.mainFrame.setVisible(true);
-			APFinalData.titleMenu.dispose();
-		} else
-			APProcessHandler.destroy();
 	}
 }

@@ -2,7 +2,6 @@ package com.prodp.apsim;
 
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.GraphicsDevice;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -342,14 +341,6 @@ public class APFinalData extends APObject {
 
 	// components
 	public static final APGUI mainFrame = new APGUI();
-
-	/**
-	 * 
-	 * The front title menu; contains start and the exit button.
-	 * 
-	 */
-
-	public static final JFrame titleMenu = new JFrame();
 
 	/**
 	 * 
@@ -1145,7 +1136,7 @@ public class APFinalData extends APObject {
 	 * 
 	 */
 
-	public static final JComboBox<String> elementChooser = new JComboBox<String>(
+	public static final JComboBox elementChooser = new JComboBox(
 			APMaterialsList.getMaterialList());
 
 	/**
@@ -1354,10 +1345,6 @@ public class APFinalData extends APObject {
 	 * Graphics device for the canvas.
 	 * 
 	 */
-
-	// graphics info
-	public static GraphicsDevice gd = mainFrame.getGraphicsConfiguration()
-			.getDevice();
 
 	/**
 	 * Slide Coefficient for fluid flow.

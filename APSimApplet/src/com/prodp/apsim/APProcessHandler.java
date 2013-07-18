@@ -35,8 +35,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -114,7 +112,7 @@ import com.sun.j3d.utils.image.TextureLoader;
 
 // This is the main class for everything: implements all the listeners
 public class APProcessHandler extends APObject implements ActionListener,
-		ChangeListener, MouseListener, MouseMotionListener, WindowListener,
+		ChangeListener, MouseListener, MouseMotionListener,
 		KeyListener {
 
 	/*
@@ -617,7 +615,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 		}
 
 		// For mouse control and screenshots
-		center = new Robot(APFinalData.gd);
+		center = new Robot();
 
 		// Set Graphics
 		graphics.setSceneAntialiasing(GraphicsConfigTemplate.PREFERRED);
@@ -852,8 +850,6 @@ public class APProcessHandler extends APObject implements ActionListener,
 		APFinalData.processSwitch
 				.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
-		// Add frame listeners
-		APFinalData.mainFrame.addWindowListener(this);
 		// APFinalData.mainFrame.setVisible(true);
 
 		// Make the thread
@@ -867,6 +863,8 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		// Make it live
 		isRunning = true;
+		
+		APFinalData.mainFrame.setVisible(true);
 	}
 
 	// UPDATE ARRAY METHOD
@@ -1245,7 +1243,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 		APList.removeAll();
 		APFinalData.mainFrame.removeAll();
 		c3d.stopRenderer();
-		APFinalData.mainFrame.dispose();
+		APFinalData.mainFrame.destroy();
 		System.runFinalization();
 
 		System.exit(0);
@@ -1577,7 +1575,6 @@ public class APProcessHandler extends APObject implements ActionListener,
 		e.consume();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
@@ -1699,7 +1696,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 			APFinalData.elementop.setVisible(false);
 
 		} else if (e.getSource() == APFinalData.elementChooser)
-			tempelement = (short) ((JComboBox<String>) e.getSource())
+			tempelement = (short) ((JComboBox) e.getSource())
 					.getSelectedIndex();
 
 		else if (e.getSource() == APFinalData.Element_Cancel)
@@ -1966,19 +1963,6 @@ public class APProcessHandler extends APObject implements ActionListener,
 		}
 	}
 
-	@Override
-	public void windowClosing(WindowEvent we) {
-
-		if (we.getSource() == APFinalData.mainFrame) {
-			isRunning = false;
-			destroy();
-		} else {
-			if (we.getSource() == APFinalData.viewop) {
-				APFinalData.viewop.setVisible(false);
-			}
-		}
-	}
-
 	/**
 	 * 
 	 * Dumps the options set in the view options dialog into the game.
@@ -2054,29 +2038,5 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-	}
-
-	@Override
-	public void windowActivated(WindowEvent we) {
-	}
-
-	@Override
-	public void windowClosed(WindowEvent we) {
-	}
-
-	@Override
-	public void windowDeactivated(WindowEvent we) {
-	}
-
-	@Override
-	public void windowDeiconified(WindowEvent we) {
-	}
-
-	@Override
-	public void windowIconified(WindowEvent we) {
-	}
-
-	@Override
-	public void windowOpened(WindowEvent we) {
 	}
 }
