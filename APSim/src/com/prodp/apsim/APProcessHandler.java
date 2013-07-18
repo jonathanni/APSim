@@ -1576,8 +1576,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		e.consume();
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
