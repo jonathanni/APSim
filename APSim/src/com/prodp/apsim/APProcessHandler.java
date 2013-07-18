@@ -1699,7 +1699,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 			APFinalData.elementop.setVisible(false);
 
 		} else if (e.getSource() == APFinalData.elementChooser)
-			tempelement = (short) ((JComboBox<String>) e.getSource())
+			tempelement = (short) ((JComboBox) e.getSource())
 					.getSelectedIndex();
 
 		else if (e.getSource() == APFinalData.Element_Cancel)

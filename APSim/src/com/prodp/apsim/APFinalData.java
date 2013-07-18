@@ -1145,7 +1145,7 @@ public class APFinalData extends APObject {
 	 * 
 	 */
 
-	public static final JComboBox<String> elementChooser = new JComboBox<String>(
+	public static final JComboBox elementChooser = new JComboBox(
 			APMaterialsList.getMaterialList());
 
 	/**
