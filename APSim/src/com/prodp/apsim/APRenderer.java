@@ -1,8 +1,8 @@
 package com.prodp.apsim;
 
 import java.awt.GraphicsConfiguration;
-import javax.swing.JComponent;
-import anaglyphcanvas3d.AnaglyphCanvas3D;
+
+import javax.media.j3d.Canvas3D;
 
 /**
  * 
@@ -18,7 +18,7 @@ import anaglyphcanvas3d.AnaglyphCanvas3D;
  * 
  */
 
-public class APRenderer extends AnaglyphCanvas3D {
+public class APRenderer extends Canvas3D {
 
 	/**
 	 * The Serial Version UID.
@@ -36,9 +36,8 @@ public class APRenderer extends AnaglyphCanvas3D {
 	 *            the housing component
 	 */
 
-	public APRenderer(GraphicsConfiguration graphicsConfiguration,
-			JComponent parent) {
-		super(graphicsConfiguration, parent);
+	public APRenderer(GraphicsConfiguration graphicsConfiguration) {
+		super(graphicsConfiguration, false);
 	}
 
 	/**

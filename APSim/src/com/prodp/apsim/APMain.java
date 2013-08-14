@@ -1,6 +1,7 @@
 package com.prodp.apsim;
 
 import java.awt.AWTException;
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -52,6 +53,8 @@ public final class APMain extends APObject implements Runnable {
 			ClassNotFoundException, InstantiationException,
 			IllegalAccessException, UnsupportedLookAndFeelException,
 			CloneNotSupportedException {
+
+		System.out.println("Starting...");
 
 		// Detect Mac OS X operating system
 		if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0) {
@@ -223,6 +226,16 @@ public final class APMain extends APObject implements Runnable {
 		if (APProcessHandler.keys[4] && !APProcessHandler.prevaction[0]) {
 			process.isPaused = !APProcessHandler.APList.getCurrentProcess().isPaused;
 			APProcessHandler.prevaction[0] = true;
+
+			if (process.isPaused)
+
+				APProcessHandler.getCanvas().setCursor(
+						Cursor.getDefaultCursor());
+
+			else
+				APProcessHandler.getCanvas().setCursor(
+						APFinalData.transparentCursor);
+
 		}
 	}
 

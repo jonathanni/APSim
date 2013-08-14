@@ -672,7 +672,7 @@ public class APFinalData extends APObject {
 	/**
 	 * 
 	 * Returns the current version of APSim. Of form
-	 * V#[#].#[#].#[#].#[#][pa/a/b/g../f].
+	 * V#[#].#[#].#[#].#[#][pa/\u03b1/\u03b2/\u03b3../f].
 	 * 
 	 * @return the version of APSim
 	 */
@@ -794,6 +794,14 @@ public class APFinalData extends APObject {
 
 	// FPS
 	public static final JTextArea fps = new JTextArea();
+	
+	/**
+	 * 
+	 * HUD messaging area.
+	 * 
+	 */
+	
+	public static final JLabel msg = new JLabel("<html><p style=\"color:red;font-family:Courier New\">Messaging Area</p></html>");
 
 	/**
 	 * 

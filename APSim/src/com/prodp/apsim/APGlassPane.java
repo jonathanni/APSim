@@ -1,5 +1,6 @@
 package com.prodp.apsim;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 
@@ -26,11 +27,10 @@ public class APGlassPane extends JComponent {
 	 * Serial Version UID.
 	 */
 	private static final long serialVersionUID = 591846187299209990L;
-	
-	//private GradientPaint toolbarpaint;
+
+	// private GradientPaint toolbarpaint;
 
 	@Override
 	public void paintComponent(Graphics g) {
-		// PlasticUtils.addLight3DEffekt(g, APFinalData.fps.getBounds());
 	}
 }

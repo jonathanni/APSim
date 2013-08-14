@@ -51,6 +51,7 @@ public class APGUI extends JFrame implements ActionListener {
 	public void init() {
 
 		APFinalData.fps.setEditable(false);
+		APFinalData.msg.setEnabled(false);
 
 		// Add the sensitivity JTextArea
 		APFinalData.senseBox = new JTextArea(
@@ -93,8 +94,11 @@ public class APGUI extends JFrame implements ActionListener {
 		APFinalData.Help.add(APFinalData.Update);
 
 		APFinalData.fps.setDoubleBuffered(true);
-		APFinalData.fps.setEditable(false);
 		APFinalData.fps.setUI(new PlasticTextAreaUI());
+		
+		APFinalData.msg.setDoubleBuffered(true);
+		//APFinalData.msg.setUI(new PlasticTextAreaUI());
+		//APFinalData.msg.setRows(1);
 
 		APFinalData.top.add(APFinalData.File);
 		APFinalData.top.add(APFinalData.Edit);
@@ -102,6 +106,7 @@ public class APGUI extends JFrame implements ActionListener {
 		APFinalData.top.add(APFinalData.Options);
 		APFinalData.top.add(APFinalData.Help);
 		APFinalData.top.add(APFinalData.fps);
+		APFinalData.top.add(APFinalData.msg, BorderLayout.SOUTH);
 
 		APFinalData.top.setUI(new PlasticMenuBarUI());
 		APFinalData.top.putClientProperty(Options.HEADER_STYLE_KEY,
@@ -186,7 +191,7 @@ public class APGUI extends JFrame implements ActionListener {
 		APFinalData.mainFrame.getGlassPane().setVisible(true);
 		APFinalData.mainFrame.add(APProcessHandler.getCanvas());
 		APFinalData.mainFrame
-				.add(APFinalData.processSwitch, BorderLayout.NORTH);
+				.add(APFinalData.processSwitch, BorderLayout.PAGE_START);
 		APFinalData.mainFrame.setLocation(500, 200);
 		APFinalData.mainFrame.setTitle("APSimulator");
 		APFinalData.mainFrame.setIconImage(APFinalData.apIconImage);

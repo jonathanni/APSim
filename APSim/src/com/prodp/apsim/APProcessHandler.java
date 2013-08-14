@@ -27,6 +27,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.MouseInfo;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -377,6 +378,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 		APProcess process = APList.getCurrentProcess();
 
 		process.setFrozen(!process.isFrozen());
+
 	}
 
 	/**
@@ -624,9 +626,9 @@ public class APProcessHandler extends APObject implements ActionListener,
 		graphics.setDoubleBuffer(GraphicsConfigTemplate.PREFERRED);
 		graphicsConfig = GraphicsEnvironment.getLocalGraphicsEnvironment()
 				.getDefaultScreenDevice().getBestConfiguration(graphics);
-		c3d = new APRenderer(graphicsConfig,
-				(JComponent) APFinalData.mainFrame.getContentPane());
+		c3d = new APRenderer(graphicsConfig);
 		c3d.setVisible(true);
+		c3d.setStereoEnable(false);
 
 		// setLookAndFeel
 		PlasticLookAndFeel.set3DEnabled(true);
@@ -668,9 +670,6 @@ public class APProcessHandler extends APObject implements ActionListener,
 		// Referencing the position of the floor to floorcoord
 		APFinalData.floor.setCoordRefFloat(APFinalData.floorcoord);
 		APFinalData.floor.setTexCoordRefFloat(0, APFinalData.floortex);
-
-		// Hide the cursor
-		c3d.setCursor(APFinalData.transparentCursor);
 
 		// Main geometry array
 		cMain = new QuadArray(APFinalData.LIMIT * 24, QuadArray.COORDINATES
@@ -805,7 +804,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 		c3d.getView().setDepthBufferFreezeTransparent(false);
 
 		// Note: c3d has no anaglyphs
-		c3d.setStereoMode(StereoMode.OFF);
+		//c3d.setStereoMode(StereoMode.OFF);
 
 		// Add Canvas listeners
 		c3d.addMouseListener(this);
@@ -1241,7 +1240,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		isRunning = false;
 
-		c3d.close();
+		c3d.stopRenderer();
 		APList.removeAll();
 		APFinalData.mainFrame.removeAll();
 		c3d.stopRenderer();
@@ -1576,7 +1575,7 @@ public class APProcessHandler extends APObject implements ActionListener,
 
 		e.consume();
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
@@ -2004,11 +2003,11 @@ public class APProcessHandler extends APObject implements ActionListener,
 			APFinalData.senseBox.setText("90");
 		}
 
-		if (amode != null) {
-			c3d.setStereoMode(StereoMode.ANAGLYPH);
-			c3d.setAnaglyphMode(amode);
-		} else
-			c3d.setStereoMode(StereoMode.OFF);
+		//if (amode != null) {
+			//c3d.setStereoMode(StereoMode.ANAGLYPH);
+			//c3d.setAnaglyphMode(amode);
+		//} else
+			//c3d.setStereoMode(StereoMode.OFF);
 	}
 
 	@Override
