@@ -31,8 +31,15 @@ public class Function extends Container {
 		return realTypes;
 	}
 
-	public Object call(Object... params){
-		this.
+	public Object call(Object... params) {
+
+		for (int i = 0; i < params.length; i++) {
+			if (params[i] instanceof Variable)
+				this.getVariables().put(((Variable) params[i]).getName(),
+						params[i]);
+		}
+
+		return null;
 	}
 
 }
