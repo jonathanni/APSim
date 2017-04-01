@@ -1,8 +1,8 @@
-#APSim
+# APSim
 
 Project migrated from Sourceforge; cccccc1 is my username there. Everything below is mostly copied from there.
 
-##Description
+## Description
 
 APSim is simply a project started on 23 December 2010 that deals with creating a 3D simulation of particles, the particles being of certain materials included in the simulator.
 
@@ -12,11 +12,9 @@ The user is placed into a virtual environment, and has many tools at his/her dis
 
 A somewhat fair comparison is to a 3D version of the famous Powder Game.
 
-From http://apsim.dyndns.org/productiveproductions/apsim.php
+## Features
 
-##Features
-
-* Mostly Cross Platform Support
+* Mostly Cross Platform Support (depends on Java 3D API support)
 * Uses the Java 3D API
 * 3D Anaglyph (Red/Blue/Green/Combinations)
 * 8 Elements
